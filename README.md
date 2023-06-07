@@ -4,13 +4,17 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of miro2bayes is to Interacts with a Miro board that has been
-setup to represent a Bayesian network. With this library yyou will be
-able to gather the attribtes to layout the DAG Directed Acyclic Graph)
-of a network, which has been collaboratively portraid in Miro. With all
-basic data in R you cana produces a formal DAG representation which is
-suitable to further processing in R and even in other platforms like
-Python or Netica.
+The goal of this library is to Interacts with a Miro board that has been
+setup to represent a Bayesian network. We assumed that in **Miro**
+*sticky notes* represent network’s *Nodes* and *connectors* represent
+*arcs* sggesting a causal/influence link. sticky notes should have text
+describingg the node and a single *tag*, indicating the name of the
+variable in the database holding the available data for the node. With
+this library you will be able to gather the attribtes to layout the DAG
+Directed Acyclic Graph) of a network, which has been collaboratively
+portraid in Miro. With all basic data in R you cana produces a formal
+DAG representation which is suitable to further processing and
+model-training in R and even in other platforms like Python or Netica.
 
 ## Installation
 
