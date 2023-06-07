@@ -165,7 +165,7 @@ prepara_DAG <- function(nodos, arcos)
   # Armado de DAG: Considero sólo las variables conectadas
   dag_cafe_efectivo <- paste0(dag_cafe, dag_arcos, "}")
   dag_efectivo <- dagitty::dagitty(dag_cafe_efectivo)
-  coord_dag_efectivo <- dagitty::coordinates(graphLayout(dag_efectivo))
+  coord_dag_efectivo <- dagitty::coordinates(dagitty::graphLayout(dag_efectivo))
   coordinates(dag_efectivo) <- coord_dag_efectivo
 
   # Grafico el DAG con ggdag, más estético
