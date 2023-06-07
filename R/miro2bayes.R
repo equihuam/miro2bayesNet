@@ -41,7 +41,7 @@ datosMiro <- function (servMiro = "miro", user)
                          httr::content_type("application/octet-stream"),
                          httr::accept("application/json"))
 
-  datos_marcos <- jsonlite::fromJSON(content(response, "text",
+  datos_marcos <- jsonlite::fromJSON(httr::content(response, "text",
                                              encoding = "utf-8"), flatten = TRUE)
   datos_marcos <- datos_marcos$data
 
@@ -57,7 +57,7 @@ datosMiro <- function (servMiro = "miro", user)
                          httr::content_type("application/octet-stream"),
                          httr::accept("application/json"))
 
-  datos_pegotes <- jsonlite::fromJSON(content(response, "text",
+  datos_pegotes <- jsonlite::fromJSON(httr::content(response, "text",
                                     encoding = "utf-8"),
                             flatten = TRUE)
   datos_pegotes <- datos_pegotes$data
@@ -83,7 +83,7 @@ datosMiro <- function (servMiro = "miro", user)
                            httr::content_type("application/octet-stream"),
                            httr::accept("application/json"))
 
-    datos_etiquetas <- jsonlite::fromJSON(content(response, "text", encoding = "utf-8"),
+    datos_etiquetas <- jsonlite::fromJSON(httr::content(response, "text", encoding = "utf-8"),
                                 flatten = TRUE)
     if (i == 1)
     {
@@ -115,7 +115,7 @@ datosMiro <- function (servMiro = "miro", user)
                          httr::content_type("application/octet-stream"),
                          httr::accept("application/json"))
 
-  datos_arcos <- jsonlite::fromJSON(content(response, "text", encoding = "utf-8"),
+  datos_arcos <- jsonlite::fromJSON(httr::content(response, "text", encoding = "utf-8"),
                           flatten = TRUE)
   num_arcos <-  datos_arcos$total
 
