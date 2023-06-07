@@ -1,6 +1,6 @@
 Package: miro2bayes
 Title: Modelación Colaborativa de una Red Bayesiana
-Version: 0.1
+Version: 0.5
 Authors@R: 
     person("Miguel", "Equihua", , "equihuam@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5306-7397"))
@@ -23,6 +23,8 @@ imports:
   ggplot2
 Suggests: 
     knitr,
+    httr,
+    httr2,
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
