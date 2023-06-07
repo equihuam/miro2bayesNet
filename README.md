@@ -4,7 +4,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of this library is to Interacts with a Miro board that has been
+The goal of this library is to Interact with a Miro board that has been
 setup to represent a Bayesian network. We assumed that in **Miro**
 *sticky notes* represent network’s *nodes* and *connectors* represent
 *arcs* sugesting a causal/influence link. sticky notes should have text
