@@ -11,7 +11,7 @@ library(ggplot2)
 library(devtools)
 install_github("equihuam/miro2bayesNet")
 -----------------------------
-library(miro2bayes)
+  library(miro2bayes)
 # Lee Miro
 miro_datos <- datosMiro(servMiro = "miro", user = "miguel-token")
 miro_datos
@@ -28,6 +28,6 @@ ind_cond_carb
 
 # Netica
 docDNE <- red_DNE(datos_marcos = miro_datos$marcos,
-papelitos =  miro_datos$nodos,
-arcos = miro_datos$arcos)
+                  papelitos =  miro_datos$nodos,
+                  arcos = miro_datos$arcos)
 cat(docDNE)

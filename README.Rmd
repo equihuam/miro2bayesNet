@@ -2,53 +2,28 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
-
 # miro2bayes
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of miro2bayes is to ...
+The goal of miro2bayes is to Interacts with a Miro board that has been setup to represent a Bayesian network. With this library yyou will be able to gather the attribtes to layout the DAG Directed Acyclic Graph) of a network, which has been collaboratively portraid in Miro. With all basic data in R you cana produces a formal DAG representation which is suitable to further processing in R and even in other platforms like Python or Netica.
 
 ## Installation
 
 You can install the development version of miro2bayes like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+library(devtools)
+install_github("equihuam/miro2bayesNet")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how get Bayesian network data from Miro:
 
-```{r example}
+```{r example, eval=FALSE}
 library(miro2bayes)
-## basic example code
+miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
+miro_data
 ```
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
