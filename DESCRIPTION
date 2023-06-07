@@ -25,6 +25,7 @@ Suggests:
     knitr,
     httr,
     httr2,
+    tidyverse,
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
