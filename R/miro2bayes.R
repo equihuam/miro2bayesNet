@@ -166,7 +166,7 @@ prepara_DAG <- function(nodos, arcos)
   dag_cafe_efectivo <- paste0(dag_cafe, dag_arcos, "}")
   dag_efectivo <- dagitty::dagitty(dag_cafe_efectivo)
   coord_dag_efectivo <- dagitty::coordinates(dagitty::graphLayout(dag_efectivo))
-  coordinates(dag_efectivo) <- coord_dag_efectivo
+  dagitty::coordinates(dag_efectivo) <- coord_dag_efectivo
 
   # Grafico el DAG con ggdag, más estético
   dag_efectivo_gg <- ggdag::tidy_dagitty(dag_efectivo)
@@ -186,7 +186,7 @@ prepara_DAG <- function(nodos, arcos)
                     legend.position = "")
 
   # DAG: Independencia condicional implicada
-  ind_cond <- impliedConditionalIndependencies(dag_cafe_efectivo)
+  ind_cond <- dagitty::impliedConditionalIndependencies(dag_cafe_efectivo)
 
   # Independencia condicional implicada en formato gráfico (Latex)
   for (i in ind_cond)
@@ -196,21 +196,21 @@ prepara_DAG <- function(nodos, arcos)
       if (length(i$Z) > 0 )
       {
         ind_cond_t <- tibble::tibble(linea = paste0("$\\newcommand{\\indep}{\\perp \\\\!\\\\!\\\\! \\perp}$",
-                                            "\n$",
-                                            gsub("_", "~", i$X),
-                                            "~ \\indep ~",
-                                            gsub("_", "~", i$Y),
-                                            "~~ |~",
-                                            gsub("_", "~", paste0(i$Z, collapse = ",~")),
-                                            "$\n ", collapse = " "))
+                                    "\n$",
+                                    gsub("_", "~", i$X),
+                                    "~ \\indep ~",
+                                    gsub("_", "~", i$Y),
+                                    "~~ |~",
+                                    gsub("_", "~", paste0(i$Z, collapse = ",~")),
+                                    "$\n ", collapse = " "))
       } else
       {
         ind_cond_t <- tibble::tibble(linea = paste0("$\\newcommand{\\indep}{\\perp \\\\!\\\\!\\\\! \\perp}$",
-                                            "\n$",
-                                            gsub("_", "~", i$X),
-                                            "~ \\indep ~",
-                                            gsub("_", "~", i$Y),
-                                            "$\n ", collapse = " "))
+                                     "\n$",
+                                     gsub("_", "~", i$X),
+                                     "~ \\indep ~",
+                                     gsub("_", "~", i$Y),
+                                     "$\n ", collapse = " "))
       }
 
     } else
@@ -219,21 +219,21 @@ prepara_DAG <- function(nodos, arcos)
       {
         ind_cond_t <- ind_cond_t %>%
           add_row(tibble::tibble(linea = paste0("$",
-                                        gsub("_", "~", i$X),
-                                        "~ \\indep ~",
-                                        gsub("_", "~", i$Y),
-                                        "~~| ~",
-                                        gsub("_", "~",
-                                             paste0(i$Z, collapse = ",~")),
-                                        "$\n ", collapse = " ")))
+                                 gsub("_", "~", i$X),
+                                 "~ \\indep ~",
+                                 gsub("_", "~", i$Y),
+                                 "~~| ~",
+                                 gsub("_", "~",
+                                      paste0(i$Z, collapse = ",~")),
+                                 "$\n ", collapse = " ")))
       } else
       {
         ind_cond_t <- ind_cond_t %>%
           add_row(tibble::tibble(linea = paste0("$",
-                                        gsub("_", "~", i$X),
-                                        "~ \\indep ~",
-                                        gsub("_", "~", i$Y),
-                                        "$\n ", collapse = " ")))
+                                 gsub("_", "~", i$X),
+                                 "~ \\indep ~",
+                                 gsub("_", "~", i$Y),
+                                 "$\n ", collapse = " ")))
       }
     }
   }
