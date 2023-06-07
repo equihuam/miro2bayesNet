@@ -8,7 +8,10 @@ library(dagitty)
 library(ggdag)
 library(ggplot2)
 
+library(devtools)
+install_github("equihuam/miro2bayesNet")
 -----------------------------
+library(miro2bayes)
 # Lee Miro
 miro_datos <- datosMiro(servMiro = "miro", user = "miguel-token")
 miro_datos
