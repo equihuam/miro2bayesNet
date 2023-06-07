@@ -4,7 +4,7 @@
 \alias{datosMiro}
 \title{Get Miro data into R}
 \usage{
-datosMiro(servMiro = "miro", user = "miguel-token")
+datosMiro(servMiro = "miro", user)
 }
 \arguments{
 \item{servMiro}{Name of the credential service as defined in keyring setup}
@@ -15,9 +15,14 @@ datosMiro(servMiro = "miro", user = "miguel-token")
 a list of nodes, arcs and frames attributes
 }
 \description{
-This function access data from an specified Miro board
-describing the basic element of a Bayesiian Network: nodes and arcs
-sticky notes are assumed to represent nodes and connectors the arcs among them.
-Nodes are expected to have only one label attached to indicate the variable name that
-that corresponds to the node in the database. It uses keyring for credentiials.
+This function accesses data from a specified Miro board describing
+the fundamental elements of a Bayesian network: nodes and arcs.
+Sticky notes are assumed to represent nodes, and connectors are the arcs.
+Nodes are expected to have one and only one label attached. This label
+is used to indicate the variable name that corresponds to the node in
+the database.
+It uses the "keyring library" to deal with credentials. It is expected
+that credentials are prepared in advance with keyring::key_set(
+service = servMiro, username = user). You should provide the token
+produced by Miro when prompted for it in a popup window.
 }
