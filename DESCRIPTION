@@ -16,6 +16,7 @@ imports:
   httr,
   jsonlite,
   tidyverse,
+  dplyr,
   dagitty,
   kableExtra,
   dagitty,
