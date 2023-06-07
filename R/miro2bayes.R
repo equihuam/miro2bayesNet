@@ -255,7 +255,7 @@ prepara_DAG <- function(nodos, arcos)
 #' @return a string that contains the whole DNE document
 #'
 #' @export
-red_DNE <- function(datos_marcos, papelitos, arcos)
+red2DNE <- function(datos_marcos, papelitos, arcos)
 {
   ## Transfiere datos a Netica
   arcos_validos <- arcos[(arcos$start_n != "-") &
