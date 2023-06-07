@@ -30,10 +30,10 @@ datosMiro <- function (servMiro = "miro", user = "miguel-token")
                       type = "frame")
 
   response <- httr::VERB("GET", enviar_url,
-                         add_headers('authorization' = credenciales),
+                         httr::add_headers('authorization' = credenciales),
                          query = queryString,
-                         content_type("application/octet-stream"),
-                         accept("application/json"))
+                         httr::content_type("application/octet-stream"),
+                         httr::accept("application/json"))
 
   datos_marcos <- jsonlite::fromJSON(content(response, "text",
                                              encoding = "utf-8"), flatten = TRUE)
@@ -46,10 +46,10 @@ datosMiro <- function (servMiro = "miro", user = "miguel-token")
                        type = "sticky_note")
 
   response <- httr::VERB("GET", enviar_url,
-                         add_headers('authorization' = credenciales),
+                         httr::add_headers('authorization' = credenciales),
                          query = queryString,
-                         content_type("application/octet-stream"),
-                         accept("application/json"))
+                         httr::content_type("application/octet-stream"),
+                         httr::accept("application/json"))
 
   datos_pegotes <- jsonlite::fromJSON(content(response, "text",
                                     encoding = "utf-8"),
@@ -73,9 +73,9 @@ datosMiro <- function (servMiro = "miro", user = "miguel-token")
     enviar_url <- paste0(url_miro, objeto, tablero_cafe, "/items/", id, "/tags")
 
     response <- httr::VERB("GET", enviar_url,
-                           add_headers('authorization' = credenciales),
-                           content_type("application/octet-stream"),
-                           accept("application/json"))
+                           httr::add_headers('authorization' = credenciales),
+                           httr::content_type("application/octet-stream"),
+                           httr::accept("application/json"))
 
     datos_etiquetas <- jsonlite::fromJSON(content(response, "text", encoding = "utf-8"),
                                 flatten = TRUE)
@@ -104,16 +104,16 @@ datosMiro <- function (servMiro = "miro", user = "miguel-token")
   queryString <- list(limit = "50")
 
   response <- httr::VERB("GET", enviar_url,
-                         add_headers('authorization' = credenciales),
+                         httr::add_headers('authorization' = credenciales),
                          query = queryString,
-                         content_type("application/octet-stream"),
-                         accept("application/json"))
+                         httr::content_type("application/octet-stream"),
+                         httr::accept("application/json"))
 
   datos_arcos <- jsonlite::fromJSON(content(response, "text", encoding = "utf-8"),
                           flatten = TRUE)
   num_arcos <-  datos_arcos$total
 
-  datos_arcos <-  as_tibble::tibble(datos_arcos$data) %>% select(endItem.id, startItem.id)
+  datos_arcos <-  tibble::as_tibble(datos_arcos$data) %>% select(endItem.id, startItem.id)
 
   # Los arcos tienen el id de los nodos que tocan, ahora agrego el dato "var" del paso anterior.
   datos_arcos_completos <-   datos_arcos %>%
@@ -128,6 +128,7 @@ datosMiro <- function (servMiro = "miro", user = "miguel-token")
                       marcos = datos_marcos)
   return(miro_datos)
 }
+
 
 #' Assemble the DAG as recovered from Miro sticky notes and arcs
 #'
@@ -159,10 +160,10 @@ prepara_DAG <- function(nodos, arcos)
   dag_cafe_efectivo <- paste0(dag_cafe, dag_arcos, "}")
   dag_efectivo <- dagitty::dagitty(dag_cafe_efectivo)
   coord_dag_efectivo <- dagitty::coordinates(graphLayout(dag_efectivo))
-  coordinates(dag_efectivo) <- dagitty::coord_dag_efectivo
+  coordinates(dag_efectivo) <- coord_dag_efectivo
 
   # Grafico el DAG con ggdag, más estético
-  dag_efectivo_gg <- dagitty::tidy_dagitty(dag_efectivo)
+  dag_efectivo_gg <- ggdag::tidy_dagitty(dag_efectivo)
 
   dag_graf <- dag_efectivo_gg %>%
               ggplot2::ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -236,6 +237,7 @@ prepara_DAG <- function(nodos, arcos)
                      dag = dag_efectivo)
   return(DAG_datos)
 }
+
 
 #' This funnction builds a representation of the Bayesian
 #' Network recovered from Miro in a DNE file format that
@@ -427,6 +429,7 @@ red_DNE <- function(datos_marcos, papelitos, arcos)
   return(doc_dne_completo)
 }
 
+
 #' This function extracts the subset of the implied conditional
 #' independences that containe an specified node name.
 #'
@@ -446,6 +449,7 @@ cond_indepOnvar <-  function (indeps, var)
                         sub_in_cond)
   return(sub_in_cond)
 }
+
 
 #' This function does a quick check on the nmeric consistency
 #' of the network attributes as interpreted from the data
@@ -469,10 +473,10 @@ miro_validar <- function(papelitos, arcos)
   nodos_sin_var <- length(papelitos$var[papelitos$var == "-"])
   nodos_nombre_repetido <- num_nodos - nodos_sin_var -
                            length(unique(papelitos$var[papelitos$var != "-"]))
-  num_arcos <- length(datos_arcos$endItem.id)
+  num_arcos <- length(arcos$endItem.id)
   num_arcos_validos <- length(arcos_validos$endItem.id)
-  arcos_sueltos <- length(datos_arcos$endItem.id) -
-                          length(datos_arcos_completos$endItem.id)
+  arcos_sueltos <- length(arcos$endItem.id) -
+                          length(arcos$endItem.id)
   arcos_duplicados <- length(arcos_validos$start_n[duplicated(arcos_validos)])
 
   validacion <- tibble::tibble(num_nodos, num_nodos_conectados, nodos_sin_var,
