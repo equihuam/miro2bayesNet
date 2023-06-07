@@ -5,17 +5,17 @@
 <!-- badges: end -->
 
 The goal of this library is to Interacts with a Miro board that has been
-setup to represent a Bayesian network. We assumed that in **Miro**
-*sticky notes* represent network’s *nodes* and *connectors* represent
+setup to represent a Bayesian network. We assumed that in **Miro**,
+*sticky notes* represent network’s *nodes*, and *connectors* represent
 *arcs* sugesting a causal/influence link. sticky notes should have text
-describingg the node and a single *tag*, indicating the name of the
+describingg the node, and a single *tag*, indicating the name of the
 corresponding variable in the database. With this library you will be
 able to gather the attributes to layout the DAG (Directed Acyclic Graph)
 of the network, which has been collaboratively portraid in *Miro*. With
-all basic data in *R* you can produce a formal DAG representation which
-is suitable to further processing and model-training in R and even in
-other platforms like Python or Netica. There are function in thi library
-to do so.
+all the basic data brought into *R*, you can formally process a DAG.
+This inicludes the ability to further processing and training the model
+in *R*, and even in other platforms like Python or Netica. There are
+functions in this library to do so.
 
 ## Installation
 
