@@ -1,5 +1,5 @@
 Package: miro2bayes
-Title: Modelación Colaborativa de una Red Bayesiana
+Title: Colaborative modeling of Bayesian networks
 Version: 0.5
 Authors@R: 
     person("Miguel", "Equihua", , "equihuam@gmail.com", role = c("aut", "cre"),
@@ -28,8 +28,10 @@ Suggests:
     httr2,
     tidyverse,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    spelling
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Imports: 
     magrittr
+Language: en-US
