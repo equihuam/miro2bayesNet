@@ -23,14 +23,13 @@ install_github("equihuam/miro2bayesNet")
 This is a basic example which shows you how get Bayesian network data from *Miro*:
 
 ```{r example, eval=FALSE}
-library(miro2bayes)
 miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
 miro_data
 ```
 
 A typical cycle of use would be: *Miro board interaction* -> **datosMiro** call -> **prepara_DAG**. This way you shall have a collection of implied conditional independence relations to discuss the DAG structure. By critical analysis of the DAG you should go back to Miro to solve inconsistencies or further develop the intended *causal proposition*.
 
-```{r example, eval=FALSE}
+```{r example2, eval=FALSE}
 miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
 miro_DAG <-  prepara_DAG(nodos = miro_data$nodos, arcos = miro_data$arcos)
 cat(indepCond)
@@ -39,7 +38,7 @@ cat(indepCond)
 
 Once a satisfactory Bayesian network has been produce the function **red2DNE** is used to produce a *.DNE* file that can be used in Netica and other dedicated Bayesian network software for training, analysisis and prediction.
 
-```{r}
+```{r eval=FALSE}
 miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
 
 data_DNE <- red2DNE(datos_marcos = miro_data$marcos, 
