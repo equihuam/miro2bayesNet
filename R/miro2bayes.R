@@ -102,7 +102,7 @@ datosMiro <- function (servMiro = "miro", user)
     }
   }
 
-  papelitos <- papelitos %>% add_column(var = tags)
+  papelitos <- papelitos %>% tibble::add_column(var = tags)
 
   # Datos de los arcos
   enviar_url <- paste0(url_miro, objeto, tablero_cafe, "/connectors")
@@ -119,13 +119,13 @@ datosMiro <- function (servMiro = "miro", user)
                           flatten = TRUE)
   num_arcos <-  datos_arcos$total
 
-  datos_arcos <-  tibble::as_tibble(datos_arcos$data) %>% select(endItem.id, startItem.id)
+  datos_arcos <-  tibble::as_tibble(datos_arcos$data) %>% dplyr::select(endItem.id, startItem.id)
 
   # Los arcos tienen el id de los nodos que tocan, ahora agrego el dato "var" del paso anterior.
   datos_arcos_completos <-   datos_arcos %>%
                              dplyr::filter(complete.cases(.)) %>%
-                             dplyr::left_join(., papelitos, by = join_by(endItem.id == id)) %>%
-                             dplyr::left_join(., papelitos, by = join_by(startItem.id == id)) %>%
+                             dplyr::left_join(., papelitos, by = dplyr::join_by(endItem.id == id)) %>%
+                             dplyr::left_join(., papelitos, by = dplyr::join_by(startItem.id == id)) %>%
                              dplyr::select(startItem.id, var.y, endItem.id, var.x) %>%
                              dplyr::rename(end_n = var.x, start_n = var.y)
 
@@ -172,18 +172,19 @@ prepara_DAG <- function(nodos, arcos)
   dag_efectivo_gg <- ggdag::tidy_dagitty(dag_efectivo)
 
   dag_graf <- dag_efectivo_gg %>%
-              ggplot2::ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
-              ggdag::geom_dag_point(aes(color = name), position = "jitter", size = 2) +
+              ggplot2::ggplot(ggplot2::aes(x = x, y = y, xend = xend, yend = yend,
+                                           color = name)) +
               ggdag::geom_dag_edges_arc(curvature = c(0, .5), edge_color = "gray50") +
-              ggdag::geom_dag_text_repel(aes(label=name, fill = name, color = name),
-                                  size = 3, force = 2) +
-              ggplot2::theme(axis.title.x=element_blank(),
-                    axis.text.x=element_blank(),
-                    axis.ticks.x=element_blank(),
-                    axis.title.y=element_blank(),
-                    axis.text.y=element_blank(),
-                    axis.ticks.y=element_blank(),
-                    legend.position = "")
+              ggdag::geom_dag_text_repel(ggplot2::aes(label=name, color = name),
+                                         size = 3, force = 3, max.overlaps = 25) +
+              ggdag::geom_dag_point(ggplot2::aes(color = name), size = 2) +
+              ggplot2::theme(axis.title.x = ggplot2::element_blank(),
+                             axis.text.x = ggplot2::element_blank(),
+                             axis.ticks.x = ggplot2::element_blank(),
+                             axis.title.y = ggplot2::element_blank(),
+                             axis.text.y = ggplot2::element_blank(),
+                             axis.ticks.y = ggplot2::element_blank(),
+                             legend.position = "")
 
   # DAG: Independencia condicional implicada
   ind_cond <- dagitty::impliedConditionalIndependencies(dag_cafe_efectivo)
@@ -218,22 +219,22 @@ prepara_DAG <- function(nodos, arcos)
       if (length(i$Z) > 0 )
       {
         ind_cond_t <- ind_cond_t %>%
-          add_row(tibble::tibble(linea = paste0("$",
-                                 gsub("_", "~", i$X),
-                                 "~ \\indep ~",
-                                 gsub("_", "~", i$Y),
-                                 "~~| ~",
-                                 gsub("_", "~",
-                                      paste0(i$Z, collapse = ",~")),
-                                 "$\n ", collapse = " ")))
-      } else
+                      tibble::add_row(tibble::tibble(linea = paste0("$",
+                                             gsub("_", "~", i$X),
+                                             "~ \\indep ~",
+                                             gsub("_", "~", i$Y),
+                                             "~~| ~",
+                                             gsub("_", "~",
+                                                  paste0(i$Z, collapse = ",~")),
+                                             "$\n ", collapse = " ")))
+                  } else
       {
         ind_cond_t <- ind_cond_t %>%
-          add_row(tibble::tibble(linea = paste0("$",
-                                 gsub("_", "~", i$X),
-                                 "~ \\indep ~",
-                                 gsub("_", "~", i$Y),
-                                 "$\n ", collapse = " ")))
+                      tibble::add_row(tibble::tibble(linea = paste0("$",
+                                             gsub("_", "~", i$X),
+                                             "~ \\indep ~",
+                                             gsub("_", "~", i$Y),
+                                             "$\n ", collapse = " ")))
       }
     }
   }

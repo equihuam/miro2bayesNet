@@ -16,9 +16,9 @@ imports:
   httr,
   jsonlite,
   tidyverse,
-  dplyr,
   dagitty,
   kableExtra,
+  tibble,
   dagitty,
   ggdag,
   ggplot2
@@ -31,3 +31,5 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Imports: 
+    magrittr
