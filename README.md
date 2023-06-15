@@ -48,13 +48,18 @@ miro_boards
 
 ## Typical Use Cycle
 
-A typical cycle of use would beas ilustrated in the FIgure. This way you
-shall have a collection of implied conditional independence relations to
-discuss the **DAG** structure. By critical analysis of the **DAG** you
-should go back to *Miro* to solve inconsistencies or further develop the
-intended *causal proposition*.
+<div style="float: right; margin: 0 10px 10px 30px; width: 200px; height: 300px;
+            object-fit: cover;">
 
-<img src="man/figures/use%20cycle.png" style="width:50.0%" />
+![](man/figures/use%20cycle.png)
+
+</div>
+
+A typical cycle of use would be as ilustrated in the FIgure. This way
+you shall have a collection of implied conditional independence
+relations to discuss the **DAG** structure. By critical analysis of the
+**DAG** you should go back to *Miro* to solve inconsistencies or further
+develop the intended *causal proposition*.
 
 ``` r
 miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
