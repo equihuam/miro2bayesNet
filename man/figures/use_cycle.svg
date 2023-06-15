@@ -29,9 +29,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      showguides="true"
-     inkscape:zoom="1.0735294"
-     inkscape:cx="451.31507"
-     inkscape:cy="611.53425"
+     inkscape:zoom="0.75909992"
+     inkscape:cx="335.26548"
+     inkscape:cy="420.89321"
      inkscape:window-width="1920"
      inkscape:window-height="1057"
      inkscape:window-x="-8"
@@ -503,7 +503,10 @@
      inkscape:groupmode="layer"
      id="layer1"><g
        id="g6485"
-       transform="translate(21.935046,19.716895)"><g
+       transform="translate(21.935046,-16.266448)"
+       inkscape:export-filename="use cycle.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><g
          id="g6496"
          transform="translate(-17.005822,0.49292238)"><image
            width="49.824558"
@@ -800,36 +803,7 @@
            id="path6008"
            style="fill:url(#linearGradient6274);fill-opacity:1;filter:url(#filter4319)" /></g></g><g
        id="g22264"
-       transform="matrix(0.35475896,0,0,0.35475896,86.530593,25.831119)"><g
-         id="g21807"
-         transform="matrix(0.26458333,0,0,0.26458333,-158.04378,67.766317)">
-	<defs
-   id="defs21798">
-		<rect
-   id="rect22235"
-   x="247"
-   y="506.39999"
-   width="750"
-   height="263.60001" />
-	</defs>
-	<clipPath
-   id="clipPath21832">
-		<use
-   xlink:href="#SVGID_1_"
-   style="overflow:visible"
-   id="use21830" />
-	</clipPath>
-	<g
-   class="st0"
-   clip-path="url(#SVGID_2_)"
-   id="g21805">
-		<path
-   class="st1"
-   d="m 611.7,770.2 -41.5,-9.9 V 593.2 l 41.5,-7.9 z M 902,730.8 c -30.1,0.1 -54.5,-24.2 -54.7,-54.3 0,-0.1 0,-0.2 0,-0.3 0,-29.6 24.3,-53.9 54.6,-53.9 30.3,0 54.6,24.3 54.6,53.9 0.1,30.1 -24.3,54.5 -54.3,54.6 0,0 -0.1,0 -0.2,0 z m 94.1,-54.6 c 0,52 -42.1,94.1 -94.1,94.1 -52,0 -94.1,-42.1 -94.1,-94.1 0,-51.3 42.2,-93.4 94.2,-93.4 52,0 94,42.1 94,93.4 z m -533.9,84.2 40.8,8.5 V 656.4 c 0,-54 -42.1,-73 -71.1,-73 -19.1,0 -34.9,4.6 -48.7,18.4 -14.5,-13.8 -31.6,-19.1 -45.4,-19.1 -20.4,0 -37.5,8.5 -49.4,23 v -19.1 l -41.5,7.9 v 165.8 l 41.5,8.5 V 655.1 c 0,-18.4 13.2,-30.9 33.5,-30.9 19.1,0 32.9,12.5 32.9,30.9 v 105.3 l 40.8,8.5 V 655.1 c 0,-18.4 13.8,-30.9 33.6,-30.9 19.1,0 32.9,12.5 32.9,30.9 z m 314.7,-177.6 -24.4,3.3 c -45.4,10.5 -75,25 -75,75 v 99.3 l 41.5,7.9 V 667 c 0,-23 13.2,-33.6 33.6,-37.5 L 777,625.6 Z M 572.2,514.3 c -9.9,10.1 -9.9,26.1 0,36.2 10.1,10.4 26.8,10.5 37.1,0.4 0.1,-0.1 0.3,-0.3 0.4,-0.4 9.9,-10 9.9,-26.2 0,-36.2 -10.6,-9.9 -27,-9.9 -37.5,0 z"
-   id="path21803"
-   style="clip-rule:evenodd;fill:#050038;fill-rule:evenodd" />
-	</g>
-</g><path
+       transform="matrix(0.35475896,0,0,0.35475896,86.530593,25.831119)"><path
          class="st2"
          d="m -28.345032,99.675067 h 50.667708 c 10.689167,0 19.3675,8.678333 19.3675,19.367503 v 50.6677 c 0,10.68917 -8.678333,19.3675 -19.3675,19.3675 h -50.667708 c -10.689166,0 -19.367499,-8.67833 -19.367499,-19.3675 v -50.6677 c 0,-10.68917 8.678333,-19.367503 19.367499,-19.367503 z"
          id="path21809"
@@ -851,7 +825,7 @@
        id="path25068"
        sodipodi:nodetypes="cc" /><path
        style="font-variation-settings:normal;opacity:1;fill:none;fill-opacity:1;stroke:#ac4709;stroke-width:4.99999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#marker4862);marker-end:url(#Arrow5);stop-color:#000000;stop-opacity:1"
-       d="m 207.27385,105.73185 c 8.95084,17.99871 4.27974,31.91083 0.49293,46.08824"
+       d="m 207.27385,89.350058 c 8.95084,17.998712 7.06813,29.122442 -2.99256,41.905652"
        id="path25070"
        sodipodi:nodetypes="cc" /><text
        xml:space="preserve"
@@ -868,10 +842,10 @@
        xml:space="preserve"
        style="font-weight:bold;font-size:11.2889px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman,  Bold';word-spacing:0px;fill:#550000;stroke:none;stroke-width:4.99999;stop-color:#000000"
        id="text5696"
-       x="168.00679"
-       y="173.20422">prepara_DAG</text><path
+       x="162.25166"
+       y="146.1366">prepara_DAG</text><path
        style="font-variation-settings:normal;opacity:1;fill:none;fill-opacity:1;stroke:#ac4709;stroke-width:4.99999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#marker4862);marker-end:url(#Arrow5);stop-color:#000000;stop-opacity:1"
-       d="m 192.89098,180.94185 c -14.81859,13.58236 -29.48006,12.94387 -44.15173,13.22854"
+       d="m 183.82871,151.58074 c -14.12149,10.44541 -24.25468,10.68604 -38.57495,9.04595"
        id="path6489"
        sodipodi:nodetypes="cc" /><text
        xml:space="preserve"
@@ -881,6 +855,6 @@
          xlink:href="#path6606"
          id="textPath6718">Rediseño</textPath></text><path
        style="font-variation-settings:normal;opacity:1;fill:none;fill-opacity:1;stroke:#338000;stroke-width:4.99999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#marker4862);marker-end:url(#Arrow5);stop-color:#000000;stop-opacity:1"
-       d="M 72.321168,185.65071 C 60.17278,169.63548 62.169278,155.09655 63.247547,140.46179"
+       d="M 72.321168,149.66717 C 60.17278,133.65194 62.169278,119.11301 63.247547,104.47825"
        id="path6606"
        sodipodi:nodetypes="cc" /></g></svg>
