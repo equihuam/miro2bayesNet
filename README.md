@@ -37,8 +37,8 @@ miro_data
 ```
 
 If you need to find the *board id* of interest, you could use the
-function `miroBoards`. This function queries Miro with the credentials
-provided and returns a `tibble` with the data describing boards
+function `miroBoards`. This function queries *Miro* with the credentials
+provided and returns a `tibble` with the data describing the boards
 available to that user.
 
 ``` r
