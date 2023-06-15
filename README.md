@@ -48,12 +48,7 @@ miro_boards
 
 ## Typical Use Cycle
 
-<div style="float: right; margin: 0 10px 10px 30px; width: 200px; height: 300px;
-            object-fit: cover;">
-
-![](man/figures/use%20cycle.png)
-
-</div>
+<img align="right" height="200px" src="man/figures/use cycle.png">
 
 A typical cycle of use would be as ilustrated in the FIgure. This way
 you shall have a collection of implied conditional independence
