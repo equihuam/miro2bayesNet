@@ -36,10 +36,10 @@ miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token", boad_id = "y
 miro_data
 ```
 
-If you need to find the *board id* of interest you could use function
-`miroBoards`. This function queries Miro with the credentials provided,
-and returns a tibble with the data describing boards available to that
-user.
+If you need to find the *board id* of interest, you could use the
+function `miroBoards`. This function queries Miro with the credentials
+provided and returns a `tibble` with the data describing boards
+available to that user.
 
 ``` r
 miro_boards <- miroBoards(servMiro = "miro", user = "your-miro-token")
