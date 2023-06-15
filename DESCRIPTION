@@ -1,6 +1,6 @@
 Package: miro2bayes
 Title: Colaborative modeling of Bayesian networks
-Version: 0.5
+Version: 0.6
 Authors@R: 
     person("Miguel", "Equihua", , "equihuam@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5306-7397"))

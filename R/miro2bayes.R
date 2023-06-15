@@ -13,9 +13,10 @@
 #'
 #' @param servMiro Name of the credential service as defined in keyring setup
 #' @param user User name as defined n keyring setup
+#' @param board_id id code of the Miro board to access
 #' @return a list of nodes, arcs and frames attributes
 #' @export
-datosMiro <- function (servMiro = "miro", user)
+datosMiro <- function (servMiro = "miro", user, board_id)
 {
   cleanFun <- function(htmlString) {
     return(gsub("<.*?>", "", htmlString))
@@ -25,13 +26,10 @@ datosMiro <- function (servMiro = "miro", user)
   credenciales <- keyring::key_get(service = "miro", username = user)
   credenciales <-  paste("Bearer", credenciales)
   url_miro <- "https://api.miro.com/v2/"
-
-  # Tablero de Café: Modelo Causal (sólo t0)
-  tablero_cafe = "uXjVMGRTvaE="
   objeto <- "boards/"
 
   # Marcos presentes en el tablero
-  enviar_url <- paste0(url_miro, objeto, tablero_cafe, "/items")
+  enviar_url <- paste0(url_miro, objeto, board_id, "/items")
   queryString <- list(limit = "20",
                       type = "frame")
 
@@ -46,7 +44,7 @@ datosMiro <- function (servMiro = "miro", user)
   datos_marcos <- datos_marcos$data
 
   # Descripción y atributos de las Variables: "Sticky notes"
-  enviar_url <- paste0(url_miro, objeto, tablero_cafe, "/items")
+  enviar_url <- paste0(url_miro, objeto, board_id, "/items")
 
   queryString <- list( limit = "40",
                        type = "sticky_note")
@@ -76,7 +74,7 @@ datosMiro <- function (servMiro = "miro", user)
   for (i in (1:length(papelitos$id)))
   {
     id <- papelitos$id[i]
-    enviar_url <- paste0(url_miro, objeto, tablero_cafe, "/items/", id, "/tags")
+    enviar_url <- paste0(url_miro, objeto, board_id, "/items/", id, "/tags")
 
     response <- httr::VERB("GET", enviar_url,
                            httr::add_headers('authorization' = credenciales),
@@ -105,7 +103,7 @@ datosMiro <- function (servMiro = "miro", user)
   papelitos <- papelitos %>% tibble::add_column(var = tags)
 
   # Datos de los arcos
-  enviar_url <- paste0(url_miro, objeto, tablero_cafe, "/connectors")
+  enviar_url <- paste0(url_miro, objeto, board_id, "/connectors")
 
   queryString <- list(limit = "50")
 

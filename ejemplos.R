@@ -13,7 +13,8 @@ install_github("equihuam/miro2bayesNet")
 -----------------------------
   library(miro2bayes)
 # Lee Miro
-miro_datos <- datosMiro(servMiro = "miro", user = "miguel-token")
+miro_datos <- datosMiro(servMiro = "miro", user = "miguel-token",
+                        board_id = "uXjVMGRTvaE=")
 miro_datos
 
 miro_valida <- miro_validar(papelitos = miro_datos$nodos, arcos = miro_datos$arcos)

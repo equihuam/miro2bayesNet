@@ -4,12 +4,14 @@
 \alias{datosMiro}
 \title{Get Miro data into R}
 \usage{
-datosMiro(servMiro = "miro", user)
+datosMiro(servMiro = "miro", user, board_id)
 }
 \arguments{
 \item{servMiro}{Name of the credential service as defined in keyring setup}
 
 \item{user}{User name as defined n keyring setup}
+
+\item{board_id}{id code of the Miro board to access}
 }
 \value{
 a list of nodes, arcs and frames attributes
