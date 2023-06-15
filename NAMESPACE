@@ -3,6 +3,7 @@
 export("%>%")
 export(cond_indepOnvar)
 export(datosMiro)
+export(miroBoards)
 export(miro_validar)
 export(prepara_DAG)
 export(red2DNE)

@@ -32,16 +32,29 @@ This is a basic example which shows you how get Bayesian network data
 from *Miro*:
 
 ``` r
-miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
+miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token", boad_id = "your-board-id")
 miro_data
 ```
 
-A typical cycle of use would be: *Miro board interaction* -\>
-**datosMiro** call -\> **prepara_DAG**. This way you shall have a
-collection of implied conditional independence relations to discuss the
-DAG structure. By critical analysis of the DAG you should go back to
-Miro to solve inconsistencies or further develop the intended *causal
-proposition*.
+If you need to find the *board id* of interest you could use function
+`miroBoards`. This function queries Miro with the credentials provided,
+and returns a tibble with the data describing boards available to that
+user.
+
+``` r
+miro_boards <- miroBoards(servMiro = "miro", user = "your-miro-token")
+miro_boards
+```
+
+## Typical Use Cycle
+
+A typical cycle of use would beas ilustrated in the FIgure. This way you
+shall have a collection of implied conditional independence relations to
+discuss the **DAG** structure. By critical analysis of the **DAG** you
+should go back to *Miro* to solve inconsistencies or further develop the
+intended *causal proposition*.
+
+<img src="man/figures/use%20cycle.png" style="width:50.0%" />
 
 ``` r
 miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")

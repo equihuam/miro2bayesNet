@@ -10,8 +10,11 @@ library(ggplot2)
 
 library(devtools)
 install_github("equihuam/miro2bayesNet")
------------------------------
-  library(miro2bayes)
+#-----------------------------
+library(miro2bayes)
+# Tableros disponibles
+boards <- miroBoards(servMiro = "miro", user = "miguel-token")
+
 # Lee Miro
 miro_datos <- datosMiro(servMiro = "miro", user = "miguel-token",
                         board_id = "uXjVMGRTvaE=")

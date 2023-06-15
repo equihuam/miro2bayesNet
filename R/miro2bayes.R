@@ -1,3 +1,32 @@
+#' List all Miro board
+#'
+#' This function recovers a list of all the boards available to the user
+#' identified by provided credentials.
+#' #'
+#' @param servMiro Name of the credential service as defined in keyring setup
+#' @param user User name as defined n keyring setup
+#' @export
+miroBoards <- function(servMiro = "miro", user)
+{
+  credenciales <- keyring::key_get(service = "miro", username = user)
+  credenciales <-  paste("Bearer", credenciales)
+  url <- "https://api.miro.com/v2/"
+  objeto <- "boards"
+  enviar_url <- paste0(url, objeto)
+
+
+  response <- httr::VERB("GET", enviar_url,
+                         httr::add_headers('authorization' = credenciales),
+                         httr::content_type("application/octet-stream"),
+                         httr::accept("application/json"))
+
+  tableros <- tibble::as_tibble(jsonlite::fromJSON(httr::content(response, "text",
+                                                                 encoding = "utf-8"),
+                                                   flatten = TRUE))
+  return(tableros$data)
+}
+
+
 #' Get Miro data into R
 #'
 #' This function accesses data from a specified Miro board describing
@@ -40,7 +69,8 @@ datosMiro <- function (servMiro = "miro", user, board_id)
                          httr::accept("application/json"))
 
   datos_marcos <- jsonlite::fromJSON(httr::content(response, "text",
-                                             encoding = "utf-8"), flatten = TRUE)
+                                             encoding = "utf-8"),
+                                     flatten = TRUE)
   datos_marcos <- datos_marcos$data
 
   # Descripción y atributos de las Variables: "Sticky notes"
