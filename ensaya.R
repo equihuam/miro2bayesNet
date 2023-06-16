@@ -21,8 +21,6 @@ neticaMiro <- red2DNE(frames_data = datos_miro$frames,
 
 write(neticaMiro, "test.dne")
 
-library(bnlearn)
-
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 graphviz.plot(netMiro_bn, layout = "dot")
 
