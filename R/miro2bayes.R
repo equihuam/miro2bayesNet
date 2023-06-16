@@ -498,10 +498,10 @@ cond_indepOnvar <-  function (indeps, var)
 miro_validar <- function(variables, arcs)
 {
   dag <- prepara_DAG(variables, arcs)
-  acyclic <- "DAG is not acyclic"
+  acyclic <- "Graph is not acyclic"
   if (dagitty::isAcyclic(dag$dag))
   {
-    acyclic <- "DAG is acyclic"
+    acyclic <- "Graph is acyclic"
   }
 
   num_nodes <- length(variables$id)
@@ -522,11 +522,20 @@ miro_validar <- function(variables, arcs)
                           length(arcs$endItem.id)
   duplicated_arcs <- length(valid_arcs$start_n[duplicated(valid_arcs)])
 
-  validacion <- tibble::tibble(acyclic, num_nodes, num_nodes_linked, nodes_without_var,
+  check <- tibble::tibble(acyclic, num_nodes, num_nodes_linked, nodes_without_var,
                                repeated_node_names, num_arcs, num_valid_arcs,
                                unlinked_arcs, duplicated_arcs)
 
-  return(validacion)
+  cat("Is it a TRUE DAG:    ", check$acyclic, "\n",
+      "Number of nodes:     ", check$num_nodes, "\n",
+      "Numb.linked nodes:   ", check$num_nodes_linked, "\n",
+      "Nodes without var:   ", check$nodes_without_var, "\n",
+      "Duplicated nodes:    ", check$repeated_node_names, "\n",
+      "Number of arcs:      ", check$num_arcs, "\n",
+      "Well connected arcs: ", check$num_valid_arcs, "\n",
+      "Numb. Loose arcs:    ", check$unlinked_arcs, "\n",
+      "Duplicated arcs:     ", check$duplicated_arcs, "\n",
+      sep = "")
 }
 
 
@@ -539,15 +548,15 @@ miro_validar <- function(variables, arcs)
 miro2bnlearn <- function(nodes, arcs)
 {
   nodes_active <- arcs[(arcs$start_n != "-") &
-                       (arcs$end_n != "-") &
-                       (!is.na(arcs$start_n)) &
-                       (!is.na(arcs$end_n)),]
+                                (arcs$end_n != "-") &
+                                (!is.na(arcs$start_n)) &
+                                (!is.na(arcs$end_n)), ]
 
   nodeset <- unique(c(nodes_active$start_n, nodes_active$end_n))
 
   net_base = bnlearn::empty.graph(nodeset)
 
-  arcs(net_base, check.cycles = FALSE) <- as.matrix(nodes_active[, c("start_n", "end_n")])
+  bnlearn::arcs(net_base, check.cycles = FALSE) <- as.matrix(nodes_active[, c("start_n", "end_n")])
 
   return(net_base)
 }

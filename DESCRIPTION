@@ -19,14 +19,13 @@ imports:
   dagitty,
   kableExtra,
   tibble,
+  bnlearn,
   dagitty,
   ggdag,
   ggplot2
 Suggests: 
     knitr,
-    httr,
     httr2,
-    tidyverse,
     rmarkdown,
     testthat (>= 3.0.0),
     spelling

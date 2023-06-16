@@ -9,7 +9,7 @@ tableros <- miroBoards(servMiro = "miro", user = "miguel-token")
 tableros[, c("name", "id")]
 datos_miro <- datosMiro(servMiro = "miro", user = "miguel-token",
                         board_id = "uXjVMGRTvaE=")
-t(miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs))
+miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs)
 
 miro_dag <- prepara_DAG(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 miro_dag$gg_dag
@@ -18,9 +18,10 @@ neticaMiro <- red2DNE(frames_data = datos_miro$frames,
                       variables = datos_miro$nodes,
                       arcs = datos_miro$arcs,
                       network_name = "Red_Produccion_Cafe")
+
 write(neticaMiro, "test.dne")
 
-library(Rgraphviz)
+library(bnlearn)
 
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 graphviz.plot(netMiro_bn, layout = "dot")
