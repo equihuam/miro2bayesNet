@@ -4,10 +4,10 @@
 \alias{prepara_DAG}
 \title{Assemble the DAG as recovered from Miro sticky notes and arcs}
 \usage{
-prepara_DAG(nodos, arcos)
+prepara_DAG(nodes, arcs)
 }
 \arguments{
-\item{nodos}{Node data as recovered from Miro board}
+\item{nodes}{Node data as recovered from Miro board}
 
 \item{arcos}{Arc data as recovered from Miro board}
 }

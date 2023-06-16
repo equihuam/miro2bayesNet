@@ -2,22 +2,22 @@
 % Please edit documentation in R/miro2bayes.R
 \name{miro_validar}
 \alias{miro_validar}
-\title{This function does a quick check on the nmeric consistency
+\title{This function does a quick check on the numeric consistency
 of the network attributes as interpreted from the data
 found in the Miro board.}
 \usage{
-miro_validar(papelitos, arcos)
+miro_validar(variables, arcs)
 }
 \arguments{
-\item{papelitos}{Node data as recovered from Miro board}
+\item{variables}{Node data as recovered from Miro board}
 
-\item{var}{Node data as recovered from Miro board.}
+\item{arcs}{Arcs links as recovered from Miro board.}
 }
 \value{
 tibble::tibble with numbers sumirizing the network structure.
 }
 \description{
-This function does a quick check on the nmeric consistency
+This function does a quick check on the numeric consistency
 of the network attributes as interpreted from the data
 found in the Miro board.
 }

@@ -6,12 +6,12 @@
 Network recovered from Miro in a DNE file format that
 Netica and other Bayesian Network application can reed.}
 \usage{
-red2DNE(datos_marcos, papelitos, arcos)
+red2DNE(frames_data, variables, arcs, network_name)
 }
 \arguments{
-\item{datos_marcos}{Frame data as recovered from Miro board}
+\item{frames_data}{Frame data as recovered from Miro board}
 
-\item{papelitos}{Node data as recovered from Miro board}
+\item{variables}{Node data as recovered from Miro board}
 
 \item{arcos}{Arc data as recovered from Miro board}
 }

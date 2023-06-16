@@ -487,16 +487,23 @@ cond_indepOnvar <-  function (indeps, var)
 }
 
 
-#' This function does a quick check on the nmeric consistency
+#' This function does a quick check on the numeric consistency
 #' of the network attributes as interpreted from the data
 #' found in the Miro board.
 #'
 #' @param variables Node data as recovered from Miro board
-#' @param var Node data as recovered from Miro board.
+#' @param arcs Arcs links as recovered from Miro board.
 #' @return tibble::tibble with numbers sumirizing the network structure.
 #' @export
 miro_validar <- function(variables, arcs)
 {
+  dag <- prepara_DAG(variables, arcs)
+  acyclic <- "DAG is not acyclic"
+  if (dagitty::isAcyclic(dag$dag))
+  {
+    acyclic <- "DAG is acyclic"
+  }
+
   num_nodes <- length(variables$id)
   valid_arcs <- arcs[(arcs$start_n != "-") &
                            (arcs$end_n != "-") &
@@ -506,20 +513,34 @@ miro_validar <- function(variables, arcs)
   nodes_linked <- unique(c(valid_arcs$start_n, valid_arcs$end_n))
 
   num_nodes_linked <- length(nodes_linked)
-  nodes_sin_var <- length(variables$var[variables$var == "-"])
-  nodes_nombre_repetido <- num_nodes - nodes_sin_var -
+  nodes_without_var <- length(variables$var[variables$var == "-"])
+  repeated_node_names <- num_nodes - nodes_without_var -
                            length(unique(variables$var[variables$var != "-"]))
   num_arcs <- length(arcs$endItem.id)
   num_valid_arcs <- length(valid_arcs$endItem.id)
-  arcos_sueltos <- length(arcs$endItem.id) -
+  unlinked_arcs <- length(arcs$endItem.id) -
                           length(arcs$endItem.id)
-  arcos_duplicados <- length(valid_arcs$start_n[duplicated(valid_arcs)])
+  duplicated_arcs <- length(valid_arcs$start_n[duplicated(valid_arcs)])
 
-  validacion <- tibble::tibble(num_nodes, num_nodes_linked, nodes_sin_var,
-                       nodes_nombre_repetido, num_arcs, num_valid_arcs,
-                       arcos_sueltos, arcos_duplicados)
+  validacion <- tibble::tibble(acyclic, num_nodes, num_nodes_linked, nodes_without_var,
+                               repeated_node_names, num_arcs, num_valid_arcs,
+                               unlinked_arcs, duplicated_arcs)
+
   return(validacion)
 }
+
+
+#' This function feeds the data from Miro into a bnlearn network.
+#'
+#' @param variables Node data as recovered from Miro board
+#' @param var Node data as recovered from Miro board.
+#' @return tibble::tibble with numbers sumirizing the network structure.
+#' @export
+miro2bnlearn <- function(variables, arcs)
+{
+
+}
+
 
 
 
