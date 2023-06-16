@@ -14,23 +14,20 @@ t(miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs))
 miro_dag <- prepara_DAG(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 miro_dag$gg_dag
 
-cat(red2DNE(frames_data = datos_miro$frames,
-        variables = datos_miro$nodes,
-        arcs = datos_miro$arcs,
-        network_name = "Red_Produccion_Cafe"))
+neticaMiro <- red2DNE(frames_data = datos_miro$frames,
+                      variables = datos_miro$nodes,
+                      arcs = datos_miro$arcs,
+                      network_name = "Red_Produccion_Cafe")
+write(neticaMiro, "test.dne")
+
+library(Rgraphviz)
+
+netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
+graphviz.plot(netMiro_bn, layout = "dot")
 
 
-library(bnlearn)
-
-nodes <- datos_miro$arcs[(datos_miro$arcs$start_n != "-") &
-                           (datos_miro$arcs$end_n != "-") &
-                           (!is.na(datos_miro$arcs$start_n)) &
-                           (!is.na(datos_miro$arcs$end_n)),]
-
-
-nodeset <- unique(c(nodes$start_n, nodes$end_n))
-
-e = empty.graph(nodeset)
-
-arcs(e) <- as.matrix(nodes[, c("start_n", "end_n")])
-
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install()
+BiocManager::install(c("graph", "Rgraphviz", "RBGL"))
+install.packages("gRain")

@@ -7,9 +7,9 @@
 miro2bnlearn(variables, arcs)
 }
 \arguments{
-\item{variables}{Node data as recovered from Miro board}
+\item{variables}{Data on Nodes as recovered from Miro board}
 
-\item{var}{Node data as recovered from Miro board.}
+\item{arcs}{Data on arcs links as recovered from Miro board.}
 }
 \value{
 tibble::tibble with numbers sumirizing the network structure.

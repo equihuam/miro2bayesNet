@@ -532,13 +532,24 @@ miro_validar <- function(variables, arcs)
 
 #' This function feeds the data from Miro into a bnlearn network.
 #'
-#' @param variables Node data as recovered from Miro board
-#' @param var Node data as recovered from Miro board.
+#' @param variables Data on Nodes as recovered from Miro board
+#' @param arcs Data on arcs links as recovered from Miro board.
 #' @return tibble::tibble with numbers sumirizing the network structure.
 #' @export
-miro2bnlearn <- function(variables, arcs)
+miro2bnlearn <- function(nodes, arcs)
 {
+  nodes_active <- arcs[(arcs$start_n != "-") &
+                       (arcs$end_n != "-") &
+                       (!is.na(arcs$start_n)) &
+                       (!is.na(arcs$end_n)),]
 
+  nodeset <- unique(c(nodes_active$start_n, nodes_active$end_n))
+
+  net_base = bnlearn::empty.graph(nodeset)
+
+  arcs(net_base, check.cycles = FALSE) <- as.matrix(nodes_active[, c("start_n", "end_n")])
+
+  return(net_base)
 }
 
 
