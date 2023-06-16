@@ -31,3 +31,10 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install()
 BiocManager::install(c("graph", "Rgraphviz", "RBGL"))
 install.packages("gRain")
+
+
+library(tidyverse)
+
+nodos_color <- datos_miro$nodes %>% left_join(datos_miro$frames, suffix = c("a", "b"),
+                                              by = join_by(frame_id == id), )
+
