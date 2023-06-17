@@ -23,7 +23,7 @@ write(neticaMiro, "test.dne")
 library(Rgraphviz)
 
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
-graphviz.plot(netMiro_bn, layout = "dot")
+graphviz.plot(netMiro_bn, layout = "dot", )
 
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -35,6 +35,7 @@ install.packages("gRain")
 
 library(tidyverse)
 
-nodos_color <- datos_miro$nodes %>% left_join(datos_miro$frames, suffix = c("a", "b"),
-                                              by = join_by(frame_id == id), )
+nodos_color <- datos_miro$nodes %>%
+               left_join(datos_miro$frames, suffix = c("a", "b"),
+                         by = join_by(frame_id == id), )
 

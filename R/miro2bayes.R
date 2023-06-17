@@ -536,8 +536,25 @@ miro_validar <- function(variables, arcs)
 #' @param arcs Data on arcs links as recovered from Miro board.
 #' @return tibble::tibble with numbers sumirizing the network structure.
 #' @export
-miro2bnlearn <- function(nodes, arcs)
+miro2bnlearn <- function(nodes, arcs, frames)
 {
+  # Construye las líneas NodeSet" que usa Netica para colorear nodes por groups
+  for (g in groups$group)
+  {
+    if (!is.na(g))
+    {
+      color = groups$color[groups$group == g]
+      g_temp <- paste0("    NodeSet ", g, " {", color, ";};\n", collapse = "")
+      if (g == groups$group[1])
+      {
+        groups_dne <- g_temp
+      } else
+      {
+        groups_dne <- c(groups_dne, g_temp)
+      }
+    }
+  }
+
   nodes_active <- arcs[(arcs$start_n != "-") &
                        (arcs$end_n != "-") &
                        (!is.na(arcs$start_n)) &
