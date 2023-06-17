@@ -50,7 +50,7 @@ miro_boards[, c("name", "id")]
 
 ## Typical Use Cycle
 
-<img align="right" height="200px" src="man/figures/use cycle.png">
+<img align="right" height="200px" src="figures/use cycle.png">
 
 A typical cycle of use would be as illustrated in the Figure. This way
 you shall have a collection of implied conditional independence
