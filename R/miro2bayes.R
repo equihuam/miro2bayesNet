@@ -547,22 +547,22 @@ miro_validar <- function(variables, arcs)
 #' @export
 miro2bnlearn <- function(nodes, arcs, frames)
 {
-  # Construye las líneas NodeSet" que usa Netica para colorear nodes por groups
-  for (g in groups$group)
-  {
-    if (!is.na(g))
-    {
-      color = groups$color[groups$group == g]
-      g_temp <- paste0("    NodeSet ", g, " {", color, ";};\n", collapse = "")
-      if (g == groups$group[1])
-      {
-        groups_dne <- g_temp
-      } else
-      {
-        groups_dne <- c(groups_dne, g_temp)
-      }
-    }
-  }
+  # TODO Construye las líneas NodeSet" que usa Netica para colorear nodes por groups
+  # for (g in groups$group)
+  # {
+  #   if (!is.na(g))
+  #   {
+  #     color = groups$color[groups$group == g]
+  #     g_temp <- paste0("    NodeSet ", g, " {", color, ";};\n", collapse = "")
+  #     if (g == groups$group[1])
+  #     {
+  #       groups_dne <- g_temp
+  #     } else
+  #     {
+  #       groups_dne <- c(groups_dne, g_temp)
+  #     }
+  #   }
+  # }
 
   nodes_active <- arcs[(arcs$start_n != "-") &
                                 (arcs$end_n != "-") &
