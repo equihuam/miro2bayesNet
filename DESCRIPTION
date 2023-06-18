@@ -13,18 +13,20 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 imports:
-  httr,
-  jsonlite,
-  tidyverse,
-  dagitty,
-  kableExtra,
-  tibble,
   bnlearn,
   dagitty,
+  dplyr,
   ggdag,
-  ggplot2
+  ggplot2,
+  httr,
+  jsonlite,
+  keyring,
+  stringi,
+  stringr,
+  tibble,
 Suggests: 
     knitr,
+    tidyverse,
     httr2,
     rmarkdown,
     testthat (>= 3.0.0),
