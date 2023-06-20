@@ -10,6 +10,9 @@ output: github_document
 
 The goal of this library is to interact with a **Miro** board that has been set up to represent a Bayesian network. We assumed that in **Miro**, *sticky notes* represent the network's *nodes*, and *connectors* represent *arcs* suggesting a causal/influence link. Sticky notes should have text describing the node, and a single *tag*, indicating the name of the corresponding *variable in the database*. With this library, you will be able to gather the attributes to lay out the DAG (Directed Acyclic Graph) of the network, which has been collaboratively portrayed in **Miro**. With all the basic data brought into *R*, you can formally process a DAG. This includes the ability to further process and train the model in *R*, and even in other platforms like `bnlearn` in *R*, or the various options available in *Python* or in dedicated applications like *Netica*. There are functions in this library to do so.
 
+To use interact with **Miro** you need credential than are obtained following [this Quickstart directions for your *first REST API call*](https://developers.miro.com/docs/rest-api-build-your-first-hello-world-app?utm_source=your_apps). The `miro2bayes` library uses `keyring` library to keep your credentials safe; so, you will need to register your credentials with function `key_set(service="identifier-you-like", username = "user-name-you-like")` as [described here](https://rdrr.io/cran/keyring/man/key_get.html). Both *service*, and *username* are required respectively as *servMiro* and *user* parameters to get access to **Miro** with `datosMiro`.
+
+
 ## Installation
 
 You can install the development version of `miro2bayes` like so:

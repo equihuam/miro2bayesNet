@@ -22,29 +22,16 @@ miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs)
 
 miro_dag <- prepara_DAG(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 miro_dag$gg_dag
-miro_dag$indepCond$line[2]
 
 neticaMiro <- red2DNE(frames_data = datos_miro$frames,
                       variables = datos_miro$nodes,
                       arcs = datos_miro$arcs,
                       network_name = "Red_Produccion_Cafe")
 
-write(neticaMiro, "test2.dne")
+write(neticaMiro, "test1.dne")
 
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 graphviz.plot(netMiro_bn, layout = "dot", )
 
-cond_indepOnvar(miro_dag$indepCond, "rendimiento")
-miro_dag$indepCond[2]
+lapply(cond_indepOnvar(miro_dag$indepCond, "rendimiento"), cat)
 
-nodos_color <- datos_miro$nodes %>%
-               left_join(datos_miro$frames, suffix = c("a", "b"),
-                         by = join_by(frame_id == id), )
-
-
-
-
-indeps %>%
-  dplyr::select(line) %>%
-  dplyr::filter(grepl(paste0("hidro", "(?=.*?~~[|])"),
-                      indeps$line, perl = TRUE))
