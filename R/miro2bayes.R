@@ -91,17 +91,24 @@ datosMiro <- function (servMiro = "miro", user, board_id)
                             flatten = TRUE)
   vars_data <- vars_data$data
 
+  if ("parent.id" %in% names(vars_data))
+  {
+    frame_id <- vars_data$parent.id
+  } else {
+    frame_id <- NA
+  }
+
   variables <-  tibble::tibble(id = vars_data$id,
                                text = vars_data$data.content,
                                color = vars_data$style.fillColor,
-                               frame_id = vars_data$parent.id,
+                               frame_id = frame_id,
                                x = as.integer(vars_data$position.x),
                                y = as.integer(vars_data$position.y))
   variables$text <- unlist(lapply(variables$text, cleanFun))
 
-  # Nombres de los nodes
+  # Nombres de los nodos
 
-  # Obtiene la etiqet asociada a cada sticky note
+  # Obtiene la etiqueta asociada a cada sticky note
   for (i in (1:length(variables$id)))
   {
     id <- variables$id[i]
@@ -133,6 +140,7 @@ datosMiro <- function (servMiro = "miro", user, board_id)
   }
 
   variables <- variables %>% tibble::add_column(var = tags)
+  variables <- variables[variables$text != "", ]
 
   # Datos de los arcos
   send_url <- paste0(url_miro, object, board_id, "/connectors")
@@ -219,6 +227,7 @@ prepara_DAG <- function(nodes, arcs)
   ind_cond <- dagitty::impliedConditionalIndependencies(dag_str_effective)
 
   # Independencia condicional implicada en formato gráfico (Latex)
+  ind_cond_t <- tibble()
   for (i in ind_cond)
   {
     if (identical(i, ind_cond[[1]]))
@@ -256,8 +265,7 @@ prepara_DAG <- function(nodes, arcs)
                                              gsub("_", "~",
                                                   paste0(i$Z, collapse = ",~")),
                                              "$\n ", collapse = " ")))
-                  } else
-      {
+      } else {
         ind_cond_t <- ind_cond_t %>%
                       tibble::add_row(tibble::tibble(line = paste0("$",
                                              gsub("_", "~", i$X),
@@ -289,9 +297,9 @@ red2DNE <- function(frames_data, variables, arcs, network_name)
 {
   ## Transfiere datos a Netica
   valid_arcs <- arcs[(arcs$start_n != "-") &
-                           (arcs$end_n != "-") &
-                           (!is.na(arcs$start_n)) &
-                           (!is.na(arcs$end_n)),]
+                     (arcs$end_n != "-") &
+                     (!is.na(arcs$start_n)) &
+                     (!is.na(arcs$end_n)),]
 
   nodes_linked <- unique(c(valid_arcs$start_n, valid_arcs$end_n))
   nodes <- sapply(nodes_linked, function(key) list(parents = character()), simplify=F)
@@ -327,6 +335,8 @@ red2DNE <- function(frames_data, variables, arcs, network_name)
   max_y <- max(frames_data$position.y, sapply(nodes, function(d) d$y))
   esc_x  <- (max_x - min_x) / 1500
   esc_y  <- (max_y - min_y) / 800
+  if(esc_x == 0) {esc_x <- 1}
+  if(esc_y == 0) {esc_y <- 1}
 
   # Traslada y escala la posición de los nodes
   for(n in names(nodes))
@@ -348,52 +358,59 @@ red2DNE <- function(frames_data, variables, arcs, network_name)
   epoch_time <- as.integer(Sys.time())  # tiempo en segundos desde 01-01-1970
 
   # Formación de groups
-  groups <- frames_data %>%
-    dplyr::select(group = data.title, color = style.fillColor) %>%
-    dplyr::mutate(group = stringi::stri_trans_general(stringr::str_extract(group, ".*?(?= )"),
-                                      "Latin-ASCII"),
-                  color = stringr::str_replace(color, "#", "Color = 0x0")) %>%
-    dplyr::mutate(group = stringr::str_sub(group))
-
-
-  # Lista de nodes por group
-  group_nodes = list()
-  for (n in names(nodes))
+  if (purrr::is_empty(frames_data))
   {
-    g_i = stringi::stri_trans_general(nodes[[n]]$group, "Latin-ASCII")
-    if (!is.na(g_i))
+    groups_dne <- ""
+    group_nodes = list()
+  } else {
+    groups <- frames_data %>%
+      dplyr::select(group = data.title, color = style.fillColor) %>%
+      dplyr::mutate(group = stringi::stri_trans_general(stringr::str_extract(group, ".*?(?= )"),
+                                                        "Latin-ASCII"),
+                    color = stringr::str_replace(color, "#", "Color = 0x0")) %>%
+      dplyr::mutate(group = stringr::str_sub(group))
+
+    # Lista de nodes por group
+    group_nodes = list()
+    for (n in names(nodes))
     {
-      if (n == names(nodes)[1])
+      g_i = stringi::stri_trans_general(nodes[[n]]$group, "Latin-ASCII")
+      if (!is.na(g_i))
       {
-        group_nodes[[g_i]] = n
-      } else
-      {
-        group_nodes[[g_i]] = c(group_nodes[[g_i]], n)
+        if (n == names(nodes)[1])
+        {
+          group_nodes[[g_i]] = n
+        } else
+        {
+          group_nodes[[g_i]] = c(group_nodes[[g_i]], n)
+        }
       }
     }
-  }
 
-  # Construye las líneas NodeSet" que usa Netica para colorear nodes por groups
-  for (g in groups$group)
-  {
-    if (!is.na(g))
+    # Construye las listas NodeSet" que usa Netica para colorear nodos por grupos
+    for (g in groups$group)
     {
-      color = groups$color[groups$group == g]
-      g_temp <- paste0("    NodeSet ", g, " {", color, ";};\n", collapse = "")
-      if (g == groups$group[1])
+      if (!is.na(g))
       {
-        groups_dne <- g_temp
-      } else
-      {
-        groups_dne <- c(groups_dne, g_temp)
+        color = groups$color[groups$group == g]
+        g_temp <- paste0("    NodeSet ", g, " {", color, ";};\n", collapse = "")
+        if (g == groups$group[1])
+        {
+          groups_dne <- g_temp
+        } else {
+          groups_dne <- c(groups_dne, g_temp)
+        }
       }
     }
+
   }
+
+
 
   # Arma la sección general del doc DNE (inclye NodeSets)
   doc_dne <- paste0("// ~->[DNET-1]->~\n",
                     "\n",
-                    "// File created by EquihuaM at InstEco_MX ",
+                    "// File created by miro2bayes",
                     "using Netica 6.05 on Jun 03, 2023 at 03:09:37 UTC.\n",
                     "\n",
                     "bnet ", network_name, " {\n",
@@ -449,19 +466,24 @@ red2DNE <- function(frames_data, variables, arcs, network_name)
                                      "    };\n", collapse = ""))
   }
 
-  dne_gr_nodes <- tibble::tibble(group = names(group_nodes),
-                         nodes = as.character(
-                                    sapply(group_nodes,
-                                           function(nodes) paste0(nodes, collapse = ","))))
+  dne_nodes <- paste0(dne_nodes, collapse = "\n")
 
   # Para finalizar el documento DNE hay qe agregar la lista de agrupamientos
-  dne_nodes <- paste0(dne_nodes, collapse = "\n")
-  doc_dne_completo <- paste0(doc_dne, dne_nodes,
-                             paste0("NodeSet ", dne_gr_nodes$group,
-                                    " {Nodes = (",
-                                    dne_gr_nodes$nodes, ");};\n",
-                                    collapse = "")
-                             , "};", collapse = "")
+  if (!purrr::is_empty(group_nodes))
+  {
+    dne_gr_nodes <- tibble::tibble(group = names(group_nodes),
+                                   nodes = as.character(sapply(group_nodes,
+                                           function(nodes) paste0(nodes, collapse = ","))))
+    doc_dne_completo <- paste0(doc_dne, dne_nodes,
+                               paste0("NodeSet ", dne_gr_nodes$group,
+                                      " {Nodes = (",
+                                      dne_gr_nodes$nodes, ");};\n",
+                                      collapse = "")
+                               , "};", collapse = "")
+
+  } else {
+    doc_dne_completo <- paste0(doc_dne, dne_nodes, "};", collapse = "")
+  }
   return(doc_dne_completo)
 }
 
@@ -477,9 +499,9 @@ cond_indepOnvar <-  function (indeps, var)
 {
   var <-  gsub("_", "~", var)
   sub_in_cond <- indeps %>%
-                 dplyr::select(linea) %>%
+                 dplyr::select(line) %>%
                  dplyr::filter(grepl(paste0(var, "(?=.*?~~[|])"),
-                                     indeps$linea, perl = TRUE))
+                                     indeps$line, perl = TRUE))
 
   sub_in_cond <-  rbind("$\\newcommand{\\indep}{\\perp \\\\!\\\\!\\\\! \\perp}$\n",
                         sub_in_cond)
@@ -526,7 +548,7 @@ miro_validar <- function(variables, arcs)
                                repeated_node_names, num_arcs, num_valid_arcs,
                                unlinked_arcs, duplicated_arcs)
 
-  cat("Is it a TRUE DAG:    ", check$acyclic, "\n",
+  cat("Is it a TRUE DAG?:    ", check$acyclic, "\n",
       "Number of nodes:     ", check$num_nodes, "\n",
       "Numb.linked nodes:   ", check$num_nodes_linked, "\n",
       "Nodes without var:   ", check$nodes_without_var, "\n",
