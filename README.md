@@ -19,7 +19,7 @@ like `bnlearn` in *R*, or the various options available in *Python* or
 in dedicated applications like *Netica*. There are functions in this
 library to do so.
 
-To use interact with **Miro** you need credential than are obtained
+To interact with **Miro** you need credential than are obtained
 following [this Quickstart directions for your *first REST API
 call*](https://developers.miro.com/docs/rest-api-build-your-first-hello-world-app?utm_source=your_apps).
 The `miro2bayes` library uses `keyring` library to keep your credentials
