@@ -31,7 +31,11 @@ neticaMiro <- red2DNE(frames_data = datos_miro$frames,
 write(neticaMiro, "test1.dne")
 
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
-graphviz.plot(netMiro_bn, layout = "dot", )
+graphviz.chart(netMiro_bn, layout = "dot")
+
+class(datos_miro)
+library(tidyverse)
+g1 <- datos_miro$nodes %>% filter(frame_id  == "3458764556091572835")
 
 lapply(cond_indepOnvar(miro_dag$indepCond, "rendimiento"), cat)
-
+library(bnlearn)
