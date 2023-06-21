@@ -227,7 +227,7 @@ prepara_DAG <- function(nodes, arcs)
   ind_cond <- dagitty::impliedConditionalIndependencies(dag_str_effective)
 
   # Independencia condicional implicada en formato gráfico (Latex)
-  ind_cond_t <- tibble()
+  ind_cond_t <- tibble::tibble()
   for (i in ind_cond)
   {
     if (identical(i, ind_cond[[1]]))
