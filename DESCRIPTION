@@ -26,6 +26,7 @@ imports:
   tibble,
 Suggests: 
     knitr,
+    bnlearn.
     tidyverse,
     httr2,
     rmarkdown,
