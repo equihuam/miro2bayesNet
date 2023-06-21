@@ -14,11 +14,10 @@ miroBoards <- function(servMiro = "miro", user)
   object <- "boards"
   send_url <- paste0(url, object)
 
-
   response <- httr::VERB("GET", send_url,
-                         httr::add_headers('authorization' = credentials),
-                         httr::content_type("application/octet-stream"),
-                         httr::accept("application/json"))
+                       httr::add_headers('authorization' = credentials),
+                       httr::content_type("application/octet-stream"),
+                       httr::accept("application/json"))
 
   tableros <- tibble::as_tibble(jsonlite::fromJSON(httr::content(response, "text",
                                                                  encoding = "utf-8"),

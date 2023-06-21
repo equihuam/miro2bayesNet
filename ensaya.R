@@ -31,11 +31,16 @@ neticaMiro <- red2DNE(frames_data = datos_miro$frames,
 write(neticaMiro, "test1.dne")
 
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
-graphviz.chart(netMiro_bn, layout = "dot")
+graphviz.plot(netMiro_bn, layout = "dot",
+              highlight = list(nodes = c(g1$var[c(-4, -5)], g2$var),
+                               fill =  "blue",
+                               col = "blue"))
 
 class(datos_miro)
 library(tidyverse)
-g1 <- datos_miro$nodes %>% filter(frame_id  == "3458764556091572835")
+grp <- unique(datos_miro$nodes$frame_id)
+g1 <- datos_miro$nodes %>% filter(frame_id  == grp[1])
+g2 <- datos_miro$nodes %>% filter(frame_id  == grp[2])
 
 lapply(cond_indepOnvar(miro_dag$indepCond, "rendimiento"), cat)
 library(bnlearn)
