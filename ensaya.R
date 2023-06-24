@@ -36,7 +36,6 @@ graphviz.plot(netMiro_bn, layout = "dot",
                                fill =  "blue",
                                col = "blue"))
 
-class(datos_miro)
 library(tidyverse)
 grp <- unique(datos_miro$nodes$frame_id)
 g1 <- datos_miro$nodes %>% filter(frame_id  == grp[1])

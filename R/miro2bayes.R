@@ -8,7 +8,7 @@
 #' @export
 miroBoards <- function(servMiro = "miro", user)
 {
-  credentials <- keyring::key_get(service = "miro", username = user)
+  credentials <- keyring::key_get(service = servMiro, username = user)
   credentials <-  paste("Bearer", credentials)
   url <- "https://api.miro.com/v2/"
   object <- "boards"
@@ -547,7 +547,7 @@ miro_validar <- function(variables, arcs)
                                repeated_node_names, num_arcs, num_valid_arcs,
                                unlinked_arcs, duplicated_arcs)
 
-  cat("Is it a TRUE DAG?:    ", check$acyclic, "\n",
+  cat("Is it a TRUE DAG?:   ", check$acyclic, "\n",
       "Number of nodes:     ", check$num_nodes, "\n",
       "Numb.linked nodes:   ", check$num_nodes_linked, "\n",
       "Nodes without var:   ", check$nodes_without_var, "\n",
