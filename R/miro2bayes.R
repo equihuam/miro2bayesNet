@@ -502,7 +502,7 @@ cond_indepOnvar <-  function (indeps, var)
                  dplyr::select(line) %>%
                  dplyr::filter(grepl(paste0(var, "(?=.*?~~[|])"),
                                      indeps$line, perl = TRUE)) %>%
-                 dplyr::mutate(line = str_trim(line)) %>%
+                 dplyr::mutate(line = stringr::str_trim(line)) %>%
                  dplyr::mutate(line = stringr::str_replace(line, "\\$",
                                                            "$\\\\color\\{blue\\} \\{")) %>%
                  dplyr::mutate(line = stringr::str_replace(line, "\\|",
