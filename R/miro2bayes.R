@@ -497,14 +497,31 @@ red2DNE <- function(frames_data, variables, arcs, network_name)
 cond_indepOnvar <-  function (indeps, var)
 {
   var <-  gsub("_", "~", var)
+
   sub_in_cond <- indeps %>%
                  dplyr::select(line) %>%
                  dplyr::filter(grepl(paste0(var, "(?=.*?~~[|])"),
-                                     indeps$line, perl = TRUE))
+                                     indeps$line, perl = TRUE)) %>%
+                 dplyr::mutate(line = str_trim(line)) %>%
+                 dplyr::mutate(line = stringr::str_replace(line, "\\$",
+                                                           "$\\\\color\\{blue\\} \\{")) %>%
+                 dplyr::mutate(line = stringr::str_replace(line, "\\|",
+                                                           "\\} \\|"))
 
-  sub_in_cond <-  rbind("$\\newcommand{\\indep}{\\perp \\\\!\\\\!\\\\! \\perp}$\n",
-                        sub_in_cond)
-  return(sub_in_cond)
+  sub_in_cond_txt <- paste0(sub_in_cond$line, collapse = "\n")
+
+  sub_in_cond <- paste0("---\ntitle: ", '"', "Conditional Independences on ",
+                        var, '"\n',
+                      "output: html_document\n",
+                      "date: ", '"', Sys.Date(), '"\n',
+                      "---\n",
+                      "$$\n\\newcommand{\\indep}{\\perp\\!\\!\\!\\perp}\n$$\n\n",
+                      sub_in_cond_txt, collapse = "")
+  file_ic_var_md <- paste0("IC_", var, ".rmd")
+  file_ic_var_html <- paste0("IC_", var, ".html")
+  write(sub_in_cond, file_ic_var_md)
+  rmarkdown::render(file_ic_var_md, output_format = "html_document")
+  rstudioapi::viewer(file_ic_var_html)
 }
 
 

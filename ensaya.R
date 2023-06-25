@@ -23,23 +23,33 @@ miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs)
 miro_dag <- prepara_DAG(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 miro_dag$gg_dag
 
+cond_indepOnvar(miro_dag$indepCond, "rendimiento")
+
 neticaMiro <- red2DNE(frames_data = datos_miro$frames,
                       variables = datos_miro$nodes,
                       arcs = datos_miro$arcs,
                       network_name = "Red_Produccion_Cafe")
 
-write(neticaMiro, "test1.dne")
+#write(neticaMiro, "test1.dne")
 
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
+acyclic(netMiro_bn, debug = TRUE)
+
 graphviz.plot(netMiro_bn, layout = "dot",
               highlight = list(nodes = c(g1$var[c(-4, -5)], g2$var),
                                fill =  "blue",
                                col = "blue"))
+
+library(bnlearn)
+library(bnviewer)
+library(tidyverse)
+viewer(netMiro_bn)
+netMiro_bn
 
 library(tidyverse)
 grp <- unique(datos_miro$nodes$frame_id)
 g1 <- datos_miro$nodes %>% filter(frame_id  == grp[1])
 g2 <- datos_miro$nodes %>% filter(frame_id  == grp[2])
 
-lapply(cond_indepOnvar(miro_dag$indepCond, "rendimiento"), cat)
-library(bnlearn)
+
+
