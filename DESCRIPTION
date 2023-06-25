@@ -24,6 +24,8 @@ imports:
   stringi,
   stringr,
   tibble,
+  rmarkdown,
+  rstudioapi,
 Suggests: 
     knitr,
     bnlearn,
