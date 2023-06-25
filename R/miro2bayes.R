@@ -510,11 +510,10 @@ cond_indepOnvar <-  function (indeps, var)
 
   sub_in_cond_txt <- paste0(sub_in_cond$line, collapse = "\n")
 
-  sub_in_cond <- paste0("---\ntitle: ", '"', "Conditional Independences on ",
-                        var, '"\n',
+  sub_in_cond <- paste0("---\ntitle: ", '"', "Conditional Independences", '"\n',
                       "output: html_document\n",
                       "date: ", '"', Sys.Date(), '"\n',
-                      "---\n",
+                      "---\n","## _", var, "_\n",
                       "$$\n\\newcommand{\\indep}{\\perp\\!\\!\\!\\perp}\n$$\n\n",
                       sub_in_cond_txt, collapse = "")
   file_ic_var_md <- paste0("IC_", var, ".rmd")
