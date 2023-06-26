@@ -32,21 +32,22 @@ neticaMiro <- red2DNE(frames_data = datos_miro$frames,
 
 #write(neticaMiro, "test1.dne")
 
+library(bnlearn)
+library(bnviewer)
+library(tidyverse)
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
+netMiro_bn
 acyclic(netMiro_bn, debug = TRUE)
 
 graphviz.plot(netMiro_bn, layout = "dot",
               highlight = list(nodes = c(g1$var[c(-4, -5)], g2$var),
                                fill =  "blue",
                                col = "blue"))
+viewer(netMiro_bn, bayesianNetwork.title = "Café sustentable",
+       edges.shadow = TRUE,
+       node.colors = "brown")
 
-library(bnlearn)
-library(bnviewer)
-library(tidyverse)
-viewer(netMiro_bn)
-netMiro_bn
 
-library(tidyverse)
 grp <- unique(datos_miro$nodes$frame_id)
 g1 <- datos_miro$nodes %>% filter(frame_id  == grp[1])
 g2 <- datos_miro$nodes %>% filter(frame_id  == grp[2])

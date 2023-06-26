@@ -33,6 +33,10 @@ install_github("equihuam/miro2bayesNet")
 To interact with **Miro** you need your credentials, which can be
 obtained following [this Quickstart directions for your *first REST API
 call*](https://developers.miro.com/docs/rest-api-build-your-first-hello-world-app?utm_source=your_apps).
+A summary of the step involved are shown in the Figure below.
+
+<img src="figures/Miiro_Token.png" style="width:60.0%" />
+
 The `miro2bayes` library uses `keyring` library to keep your credentials
 safe; so, you will need to register your credentials in your local
 machine with the function
@@ -62,7 +66,7 @@ miro_boards[, c("name", "id")]
 
 ## Typical Use Cycle
 
-<img align="right" height="200px" src="figures/use cycle.png">
+<img src="figures/use cycle.png" align="right" height="200px"/>
 
 A typical cycle of use would be as illustrated in the Figure. This way
 you shall have a collection of implied conditional independence
