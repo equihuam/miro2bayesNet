@@ -21,7 +21,7 @@ install_github("equihuam/miro2bayesNet")
 
 ## Example
 
-To interact with **Miro** you need your credentials, which can be obtained following [this Quickstart directions for your *first REST API call*](https://developers.miro.com/docs/rest-api-build-your-first-hello-world-app?utm_source=your_apps). A summary of the step involved are shown in the Figure below.
+To interact with **Miro** you need your credentials, which can be obtained following [this Quickstart directions for your *first REST API call*](https://developers.miro.com/docs/rest-api-build-your-first-hello-world-app?utm_source=your_apps). A summary of the steps involved is shown in the Figure below.
 
 ![](figures/Miiro_Token.png){width="60%"}
 

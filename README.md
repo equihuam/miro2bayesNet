@@ -33,7 +33,7 @@ install_github("equihuam/miro2bayesNet")
 To interact with **Miro** you need your credentials, which can be
 obtained following [this Quickstart directions for your *first REST API
 call*](https://developers.miro.com/docs/rest-api-build-your-first-hello-world-app?utm_source=your_apps).
-A summary of the step involved are shown in the Figure below.
+A summary of the steps involved is shown in the Figure below.
 
 <img src="figures/Miiro_Token.png" style="width:60.0%" />
 
