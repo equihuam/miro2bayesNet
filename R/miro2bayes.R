@@ -173,7 +173,6 @@ datosMiro <- function (servMiro = "miro", user, board_id)
 }
 
 
-
 #' This function does a quick check on the numeric consistency
 #' of the network attributes as interpreted from the data
 #' found in the Miro board.

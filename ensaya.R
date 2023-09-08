@@ -1,24 +1,29 @@
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install()
-BiocManager::install(c("graph", "Rgraphviz", "RBGL"), force = TRUE)
-install.packages("gRain")
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install()
+#BiocManager::install(c("graph", "Rgraphviz", "RBGL"), force = TRUE)
+#install.packages("gRain")
+#library(devtools)
+#install_github("equihuam/miro2bayesNet")
+#
+#dbx_path <-  "C:/Users/equih/Documents/1 Nubes/Dropbox/Robert/Redes/DAG/"
+#
+#devtools::document()
 
 library(bnlearn)
 library(bnviewer)
 library(tidyverse)
-
-dbx_path <-  "C:/Users/equih/Documents/1 Nubes/Dropbox/Robert/Redes/DAG/"
-library(devtools)
-install_github("equihuam/miro2bayesNet")
-
-devtools::document()
-
 library(miro2bayes)
+
 tableros <- miroBoards(servMiro = "miro", user = "miguel-token")
 tableros[, c("name", "id")]
+
+tablero_tr <- tableros %>%
+              filter(str_detect(name, "Copia.*sólo t0")) %>%
+              select(id, name)
+
 datos_miro <- datosMiro(servMiro = "miro", user = "miguel-token",
-                        board_id = tableros$id[grepl("Copia.*sólo t0", tableros$name)])
+                        board_id = tablero_tr$id)
 
 miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs)
 
