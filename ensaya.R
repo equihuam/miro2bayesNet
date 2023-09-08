@@ -1,9 +1,11 @@
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 BiocManager::install()
-BiocManager::install(c("graph", "Rgraphviz", "RBGL"))
+BiocManager::install(c("graph", "Rgraphviz", "RBGL"), force = TRUE)
 install.packages("gRain")
 
+library(bnlearn)
+library(bnviewer)
 library(tidyverse)
 
 dbx_path <-  "C:/Users/equih/Documents/1 Nubes/Dropbox/Robert/Redes/DAG/"
@@ -16,7 +18,7 @@ library(miro2bayes)
 tableros <- miroBoards(servMiro = "miro", user = "miguel-token")
 tableros[, c("name", "id")]
 datos_miro <- datosMiro(servMiro = "miro", user = "miguel-token",
-                        board_id = tableros$id[grepl("sólo t0", tableros$name)])
+                        board_id = tableros$id[grepl("Copia.*sólo t0", tableros$name)])
 
 miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs)
 
@@ -32,25 +34,85 @@ neticaMiro <- red2DNE(frames_data = datos_miro$frames,
 
 #write(neticaMiro, "test1.dne")
 
-library(bnlearn)
-library(bnviewer)
-library(tidyverse)
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 netMiro_bn
-acyclic(netMiro_bn, debug = TRUE)
 
-graphviz.plot(netMiro_bn, layout = "dot",
-              highlight = list(nodes = c(g1$var[c(-4, -5)], g2$var),
-                               fill =  "blue",
-                               col = "blue"))
+variables <- tibble(id = names(netMiro_bn$nodes))
+grp <- datos_miro$frames[, c("id", "data.title")]
+g1 <- datos_miro$nodes %>%
+      filter(frame_id  == grp$id[1]) %>%
+      select(var) %>%
+      inner_join(variables, by = join_by(var == id))
+
+g2 <- datos_miro$nodes %>%
+  filter(frame_id  == grp$id[2]) %>%
+  select(var) %>%
+  inner_join(variables, by = join_by(var == id))
+
+g3 <- datos_miro$nodes %>%
+  filter(frame_id  == grp$id[3]) %>%
+  select(var) %>%
+  inner_join(variables, by = join_by(var == id))
+
+g4 <- datos_miro$nodes %>%
+  filter(frame_id  == grp$id[4]) %>%
+  select(var) %>%
+  inner_join(variables, by = join_by(var == id))
+
+graphviz.plot(netMiro_bn, layout = "dot")
+
 viewer(netMiro_bn, bayesianNetwork.title = "Café sustentable",
        edges.shadow = TRUE,
-       node.colors = "brown")
+       node.colors = list(background = "white",
+                          border = "black",
+                          highlight = list(background = "#e91eba",
+                                           border = "black")),
 
-
-grp <- unique(datos_miro$nodes$frame_id)
-g1 <- datos_miro$nodes %>% filter(frame_id  == grp[1])
-g2 <- datos_miro$nodes %>% filter(frame_id  == grp[2])
+       clusters.legend.title = list(text = "<b>Leyenda</b> <br> Categorías de las variables",
+                                    style = "font-size:14px;
+                                             font-family:Arial;
+                                             color:black;
+                                             text-align:center;"),
+       clusters.legend.options = list(
+         list(label = "Incidencia",
+              shape = "icon",
+              icon = list(code = "f140",
+                          size = 30,
+                          color = "#e91e63")),
+         list(label = "Contexto Físico",
+              shape = "icon",
+              icon = list(code = "f1ce",
+                          size = 30,
+                          color = "#03a9f4")),
+         list(label = "Ecosistemas",
+              shape = "icon",
+              icon = list(code = "f192",
+                          size = 30,
+                          color = "#4caf50")),
+         list(label = "Beneficios Sociales",
+              shape = "icon",
+              icon = list(code = "f10c",
+                          size = 30,
+                          color = "#ffc107"))),
+       clusters = list(
+         list(label = "Capital 1",
+              shape = "icon",
+              icon = list(code = "f140", color = "#e91e63"),
+              nodes = as.list(g1$var)),
+         list(label = "Capital 2",
+              shape = "icon",
+              icon = list(code = "f1ce", color = "#03a9f4"),
+              nodes = as.list(g2$var)),
+         list(label = "Capital 3",
+              shape = "icon",
+              icon = list(code = "f192", color = "#4caf50"),
+              nodes = as.list(g3$var)),
+         list(label = "Capital 4",
+              shape = "icon",
+              icon = list(code = "f10c", color = "#ffc107"),
+              nodes = as.list(g4$var))),
+       bayesianNetwork.enabled.interactive.mode = FALSE,
+       bayesianNetwork.height = "700px")
 
 
 

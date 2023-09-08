@@ -173,6 +173,59 @@ datosMiro <- function (servMiro = "miro", user, board_id)
 }
 
 
+
+#' This function does a quick check on the numeric consistency
+#' of the network attributes as interpreted from the data
+#' found in the Miro board.
+#'
+#' @param variables Node data as recovered from Miro board
+#' @param arcs Arcs links as recovered from Miro board.
+#' @return tibble::tibble with numbers sumirizing the network structure.
+#' @export
+miro_validar <- function(variables, arcs)
+{
+  dag <- prepara_DAG(variables, arcs)
+  acyclic <- "Graph is not acyclic"
+  if (dagitty::isAcyclic(dag$dag))
+  {
+    acyclic <- "Graph is acyclic"
+  }
+
+  num_nodes <- length(variables$id)
+  valid_arcs <- arcs[(arcs$start_n != "-") &
+                       (arcs$end_n != "-") &
+                       (!is.na(arcs$start_n)) &
+                       (!is.na(arcs$end_n)),]
+
+  nodes_linked <- unique(c(valid_arcs$start_n, valid_arcs$end_n))
+
+  num_nodes_linked <- length(nodes_linked)
+  nodes_without_var <- length(variables$var[variables$var == "-"])
+  repeated_node_names <- num_nodes - nodes_without_var -
+    length(unique(variables$var[variables$var != "-"]))
+  num_arcs <- length(arcs$endItem.id)
+  num_valid_arcs <- length(valid_arcs$endItem.id)
+  unlinked_arcs <- length(arcs$endItem.id) -
+    length(arcs$endItem.id)
+  duplicated_arcs <- length(valid_arcs$start_n[duplicated(valid_arcs)])
+
+  check <- tibble::tibble(acyclic, num_nodes, num_nodes_linked, nodes_without_var,
+                          repeated_node_names, num_arcs, num_valid_arcs,
+                          unlinked_arcs, duplicated_arcs)
+
+  cat("Is it a TRUE DAG?:   ", check$acyclic, "\n",
+      "Number of nodes:     ", check$num_nodes, "\n",
+      "Numb.linked nodes:   ", check$num_nodes_linked, "\n",
+      "Nodes without var:   ", check$nodes_without_var, "\n",
+      "Duplicated nodes:    ", check$repeated_node_names, "\n",
+      "Number of arcs:      ", check$num_arcs, "\n",
+      "Well connected arcs: ", check$num_valid_arcs, "\n",
+      "Numb. Loose arcs:    ", check$unlinked_arcs, "\n",
+      "Duplicated arcs:     ", check$duplicated_arcs, "\n",
+      sep = "")
+}
+
+
 #' Assemble the DAG as recovered from Miro sticky notes and arcs
 #'
 #' This function builds a formal DAG sing DOT language and dagitty
@@ -507,8 +560,7 @@ cond_indepOnvar <-  function (indeps, var)
                                                            "$\\\\color\\{blue\\} \\{")) %>%
                  dplyr::mutate(line = stringr::str_replace(line, "\\|",
                                                            "\\} \\|"))
-
-  sub_in_cond_txt <- paste0(sub_in_cond$line, collapse = "\n")
+  sub_in_cond_txt <- paste0(sub_in_cond$line, sep= "\n", collapse = "\n")
 
   sub_in_cond <- paste0("---\ntitle: ", '"', "Conditional Independences", '"\n',
                       "output: html_document\n",
@@ -521,58 +573,6 @@ cond_indepOnvar <-  function (indeps, var)
   write(sub_in_cond, file_ic_var_md)
   rmarkdown::render(file_ic_var_md, output_format = "html_document")
   rstudioapi::viewer(file_ic_var_html)
-}
-
-
-#' This function does a quick check on the numeric consistency
-#' of the network attributes as interpreted from the data
-#' found in the Miro board.
-#'
-#' @param variables Node data as recovered from Miro board
-#' @param arcs Arcs links as recovered from Miro board.
-#' @return tibble::tibble with numbers sumirizing the network structure.
-#' @export
-miro_validar <- function(variables, arcs)
-{
-  dag <- prepara_DAG(variables, arcs)
-  acyclic <- "Graph is not acyclic"
-  if (dagitty::isAcyclic(dag$dag))
-  {
-    acyclic <- "Graph is acyclic"
-  }
-
-  num_nodes <- length(variables$id)
-  valid_arcs <- arcs[(arcs$start_n != "-") &
-                           (arcs$end_n != "-") &
-                           (!is.na(arcs$start_n)) &
-                           (!is.na(arcs$end_n)),]
-
-  nodes_linked <- unique(c(valid_arcs$start_n, valid_arcs$end_n))
-
-  num_nodes_linked <- length(nodes_linked)
-  nodes_without_var <- length(variables$var[variables$var == "-"])
-  repeated_node_names <- num_nodes - nodes_without_var -
-                           length(unique(variables$var[variables$var != "-"]))
-  num_arcs <- length(arcs$endItem.id)
-  num_valid_arcs <- length(valid_arcs$endItem.id)
-  unlinked_arcs <- length(arcs$endItem.id) -
-                          length(arcs$endItem.id)
-  duplicated_arcs <- length(valid_arcs$start_n[duplicated(valid_arcs)])
-
-  check <- tibble::tibble(acyclic, num_nodes, num_nodes_linked, nodes_without_var,
-                               repeated_node_names, num_arcs, num_valid_arcs,
-                               unlinked_arcs, duplicated_arcs)
-
-  cat("Is it a TRUE DAG?:   ", check$acyclic, "\n",
-      "Number of nodes:     ", check$num_nodes, "\n",
-      "Numb.linked nodes:   ", check$num_nodes_linked, "\n",
-      "Nodes without var:   ", check$nodes_without_var, "\n",
-      "Duplicated nodes:    ", check$repeated_node_names, "\n",
-      "Number of arcs:      ", check$num_arcs, "\n",
-      "Well connected arcs: ", check$num_valid_arcs, "\n",
-      "Numb. Loose arcs:    ", check$unlinked_arcs, "\n",
-      "Duplicated arcs:     ", check$duplicated_arcs, "\n",
-      sep = "")
 }
 
 
