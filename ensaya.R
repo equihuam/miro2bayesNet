@@ -3,12 +3,12 @@
 #BiocManager::install()
 #BiocManager::install(c("graph", "Rgraphviz", "RBGL"), force = TRUE)
 #install.packages("gRain")
-#library(devtools)
-#install_github("equihuam/miro2bayesNet")
+devtools::document()
+library(devtools)
+install_github("equihuam/miro2bayesNet")
 #
 #dbx_path <-  "C:/Users/equih/Documents/1 Nubes/Dropbox/Robert/Redes/DAG/"
 #
-#devtools::document()
 
 library(bnlearn)
 library(bnviewer)
