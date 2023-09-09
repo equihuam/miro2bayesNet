@@ -2,7 +2,7 @@
 #'
 #' This function recovers a list of all the boards available to the user
 #' identified by provided credentials.
-#' #'
+#'
 #' @param servMiro Name of the credential service as defined in keyring setup
 #' @param user User name as defined n keyring setup
 #' @export
