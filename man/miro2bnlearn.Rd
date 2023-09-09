@@ -4,12 +4,12 @@
 \alias{miro2bnlearn}
 \title{This function feeds the data from Miro into a bnlearn network.}
 \usage{
-miro2bnlearn(nodes, arcs, frames)
+miro2bnlearn(miroData)
 }
 \arguments{
-\item{arcs}{Data on arcs links as recovered from Miro board.}
-
 \item{variables}{Data on Nodes as recovered from Miro board}
+
+\item{arcs}{Data on arcs links as recovered from Miro board.}
 }
 \value{
 tibble::tibble with numbers sumirizing the network structure.

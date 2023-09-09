@@ -22,24 +22,24 @@ tablero_tr <- tableros %>%
               filter(str_detect(name, "Copia.*sólo t0")) %>%
               select(id, name)
 
-datos_miro <- datosMiro(servMiro = "miro", user = "miguel-token",
-                        board_id = tablero_tr$id)
+datos_miro <- readMiro(servMiro = "miro", user = "miguel-token",
+                        board = tablero_tr)
 
-miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs)
+miroValidation(datos_miro)
 
-miro_dag <- prepara_DAG(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
+miro_dag <- miroDAG(datos_miro)
 miro_dag$gg_dag
 
-cond_indepOnvar1(miro_dag$indepCond, "rendimiento")
+cond_indepOnvar(miro_dag$indepCond, "rendimiento")
 
-neticaMiro <- red2DNE(frames_data = datos_miro$frames,
+neticaMiro <- miro2DNE(frames_data = datos_miro$frames,
                       variables = datos_miro$nodes,
                       arcs = datos_miro$arcs,
                       network_name = "Red_Produccion_Cafe")
 
 write(neticaMiro, "Café-sólo-t0.dne")
 
-netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
+netMiro_bn <- miro2bnlearn(datos_miro)
 netMiro_bn
 
 variables <- tibble(id = names(netMiro_bn$nodes))

@@ -49,26 +49,27 @@ miro_boards[, c("name", "id")]
 A typical cycle of use would be as illustrated in the Figure. This way you shall have a collection of implied conditional independence relations to discuss the **DAG** structure. By critical analysis of the **DAG** you should go back to **Miro** to solve inconsistencies or further develop the intended *causal proposition*.
 
 ```{r example2, eval=FALSE}
-miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
-miro_DAG <-  prepara_DAG(nods = miro_data$nodos, arcs = miro_data$arcos)
+miro_data <- readMiro(servMiro = "miro", user = "your-miro-token", 
+                      board = tablero_tr)
+miro_DAG <-  miroDAG(miro_data)
 cat(indepCond)
 ```
 
 A quick check of the network recovered from **Miro** can be produced with the function `miro_validar`. The check shows whether the network is indeed a *DAG* (no cycles present!) and a few numbers describing what was found in **Miro**: number of nodes, identified variable names, the status of links, and so for.
 
 ```{r check, eval=FALSE}
-check_data <- miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs))
+check_data <- miroValidation(miro_data))
 t(check_data)
 ```
 
-Once a satisfactory Bayesian network has been produced, the function **red2DNE** is used to produce a *.DNE* file that can be used in Netica and other dedicated Bayesian network software for training, analysis and prediction.
+Once a satisfactory Bayesian network has been produced, the function **miro2DNE** is used to produce a *.DNE* file that can be used in Netica and other dedicated Bayesian network software for training, analysis and prediction.
 
 ```{r eval=FALSE}
 miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
 
-data_DNE <- red2DNE(frames_data = miro_data$marcos, 
-                    variables= miro_data$nodos, 
-                    arcs = miro_data$arcos)
+data_DNE <- miro2DNE(frames_data = miro_data$marcos, 
+                     variables= miro_data$nodos, 
+                     arcs = miro_data$arcos)
 ```
 
 Another option is to feed **Miro** data into `bnlearn` with the function `miro2bnlearn`. Which is done as follows.

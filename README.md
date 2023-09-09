@@ -75,8 +75,9 @@ relations to discuss the **DAG** structure. By critical analysis of the
 further develop the intended *causal proposition*.
 
 ``` r
-miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
-miro_DAG <-  prepara_DAG(nods = miro_data$nodos, arcs = miro_data$arcos)
+miro_data <- readMiro(servMiro = "miro", user = "your-miro-token", 
+                      board = tablero_tr)
+miro_DAG <-  miroDAG(miro_data)
 cat(indepCond)
 ```
 
@@ -87,21 +88,21 @@ was found in **Miro**: number of nodes, identified variable names, the
 status of links, and so for.
 
 ``` r
-check_data <- miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs))
+check_data <- miroValidation(miro_data))
 t(check_data)
 ```
 
 Once a satisfactory Bayesian network has been produced, the function
-**red2DNE** is used to produce a *.DNE* file that can be used in Netica
+**miro2DNE** is used to produce a *.DNE* file that can be used in Netica
 and other dedicated Bayesian network software for training, analysis and
 prediction.
 
 ``` r
 miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
 
-data_DNE <- red2DNE(frames_data = miro_data$marcos, 
-                    variables= miro_data$nodos, 
-                    arcs = miro_data$arcos)
+data_DNE <- miro2DNE(frames_data = miro_data$marcos, 
+                     variables= miro_data$nodos, 
+                     arcs = miro_data$arcos)
 ```
 
 Another option is to feed **Miro** data into `bnlearn` with the function

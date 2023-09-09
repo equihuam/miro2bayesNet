@@ -44,7 +44,7 @@ miroBoards <- function(servMiro = "miro", user)
 #' @param board Dataframe with id code and name of the Miro board to access
 #' @return a list of nodes, arcs and frames attributes
 #' @export
-datosMiro <- function (servMiro = "miro", user, board)
+readMiro <- function (servMiro = "miro", user, board)
 {
   cleanFun <- function(htmlString) {
     return(gsub("<.*?>", "", htmlString))
@@ -181,12 +181,12 @@ datosMiro <- function (servMiro = "miro", user, board)
 #' @param miroData Data recovered from Miro board
 #' @return tibble::tibble with numbers sumirizing the network structure.
 #' @export
-miro_validar <- function(miroData)
+miroValidation <- function(miroData)
 {
   variables <- miroData$nodes
   arcs <- miroData$arcs
 
-  dag <- prepara_DAG(variables, arcs)
+  dag <- miroDAG(miroData)
   acyclic <- "Graph is not acyclic"
   if (dagitty::isAcyclic(dag$dag))
   {
@@ -238,11 +238,14 @@ miro_validar <- function(miroData)
 #' @param nodes Node data as recovered from Miro board
 #' @param arcos Arc data as recovered from Miro board
 #' @return a list holding a ggdag plot, text list of
-#' implied conditional independenceof nodes, arcs and frames attributes,
+#' implied conditional independence of nodes, arcs and frames attributes,
 #' and the DAG itself as interpreted by dagitty.
 #' @export
-prepara_DAG <- function(nodes, arcs)
+miroDAG <- function(miroData)
 {
+  nodes <- miroData$nodes
+  arcs <- miroData$arcs
+
   # Componentes del DAG
   valid_arcs <- arcs[(arcs$start_n != "-") &
                            (arcs$end_n != "-") &
@@ -331,7 +334,8 @@ prepara_DAG <- function(nodes, arcs)
     }
   }
   # Guarda documento **DNE** en disco
-  DAG_datos <-  list(gg_dag = dag_graph,
+  DAG_datos <-  list(board = miroData$board,
+                     gg_dag = dag_graph,
                      indepCond = ind_cond_t,
                      dag = dag_effective)
   return(DAG_datos)
@@ -585,8 +589,12 @@ cond_indepOnvar <-  function (indeps, var)
 #' @param arcs Data on arcs links as recovered from Miro board.
 #' @return tibble::tibble with numbers sumirizing the network structure.
 #' @export
-miro2bnlearn <- function(nodes, arcs, frames)
+miro2bnlearn <- function(miroData)
 {
+  nodes <- miroData$nodes
+  arcs <- miroData$arcs
+  frames <- miroData$frames
+
   # TODO Construye las líneas NodeSet" que usa Netica para colorear nodes por groups
   # for (g in groups$group)
   # {
