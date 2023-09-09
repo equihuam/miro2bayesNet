@@ -41,10 +41,10 @@ miroBoards <- function(servMiro = "miro", user)
 #'
 #' @param servMiro Name of the credential service as defined in keyring setup
 #' @param user User name as defined n keyring setup
-#' @param board_id id code of the Miro board to access
+#' @param board Dataframe with id code and name of the Miro board to access
 #' @return a list of nodes, arcs and frames attributes
 #' @export
-datosMiro <- function (servMiro = "miro", user, board_id)
+datosMiro <- function (servMiro = "miro", user, board)
 {
   cleanFun <- function(htmlString) {
     return(gsub("<.*?>", "", htmlString))
@@ -57,7 +57,7 @@ datosMiro <- function (servMiro = "miro", user, board_id)
   object <- "boards/"
 
   # Marcos presentes en el tablero
-  send_url <- paste0(url_miro, object, board_id, "/items")
+  send_url <- paste0(url_miro, object, board$id, "/items")
 
   queryString <- list(limit = "20",
                       type = "frame")
@@ -74,7 +74,7 @@ datosMiro <- function (servMiro = "miro", user, board_id)
   frames_data <- frames_data$data
 
   # Descripción y atributos de las Variables: "Sticky notes"
-  send_url <- paste0(url_miro, object, board_id, "/items")
+  send_url <- paste0(url_miro, object, board$id, "/items")
 
   queryString <- list( limit = "40",
                        type = "sticky_note")
@@ -111,7 +111,7 @@ datosMiro <- function (servMiro = "miro", user, board_id)
   for (i in (1:length(variables$id)))
   {
     id <- variables$id[i]
-    send_url <- paste0(url_miro, object, board_id, "/items/", id, "/tags")
+    send_url <- paste0(url_miro, object, board$id, "/items/", id, "/tags")
 
     response <- httr::VERB("GET", send_url,
                            httr::add_headers('authorization' = credentials),
@@ -142,7 +142,7 @@ datosMiro <- function (servMiro = "miro", user, board_id)
   variables <- variables[variables$text != "", ]
 
   # Datos de los arcos
-  send_url <- paste0(url_miro, object, board_id, "/connectors")
+  send_url <- paste0(url_miro, object, board$id, "/connectors")
 
   queryString <- list(limit = "50")
 
@@ -166,7 +166,8 @@ datosMiro <- function (servMiro = "miro", user, board_id)
                              dplyr::select(startItem.id, var.y, endItem.id, var.x) %>%
                              dplyr::rename(end_n = var.x, start_n = var.y)
 
-  miro_datos <-  list(nodes = variables,
+  miro_datos <-  list(board = board$name,
+                      nodes = variables,
                       arcs = arcs_data_full,
                       frames = frames_data)
   return(miro_datos)
@@ -177,12 +178,14 @@ datosMiro <- function (servMiro = "miro", user, board_id)
 #' of the network attributes as interpreted from the data
 #' found in the Miro board.
 #'
-#' @param variables Node data as recovered from Miro board
-#' @param arcs Arcs links as recovered from Miro board.
+#' @param miroData Data recovered from Miro board
 #' @return tibble::tibble with numbers sumirizing the network structure.
 #' @export
-miro_validar <- function(variables, arcs)
+miro_validar <- function(miroData)
 {
+  variables <- miroData$nodes
+  arcs <- miroData$arcs
+
   dag <- prepara_DAG(variables, arcs)
   acyclic <- "Graph is not acyclic"
   if (dagitty::isAcyclic(dag$dag))
@@ -212,15 +215,16 @@ miro_validar <- function(variables, arcs)
                           repeated_node_names, num_arcs, num_valid_arcs,
                           unlinked_arcs, duplicated_arcs)
 
-  cat("Is it a TRUE DAG?:   ", check$acyclic, "\n",
-      "Number of nodes:     ", check$num_nodes, "\n",
-      "Numb.linked nodes:   ", check$num_nodes_linked, "\n",
-      "Nodes without var:   ", check$nodes_without_var, "\n",
-      "Duplicated nodes:    ", check$repeated_node_names, "\n",
-      "Number of arcs:      ", check$num_arcs, "\n",
-      "Well connected arcs: ", check$num_valid_arcs, "\n",
-      "Numb. Loose arcs:    ", check$unlinked_arcs, "\n",
-      "Duplicated arcs:     ", check$duplicated_arcs, "\n",
+  cat("Miro board origin:      ", miroData$board, "\n",
+      "Is it a TRUE DAG?:      ", check$acyclic, "\n",
+      "Number of sticky notes: ", check$num_nodes, "\n",
+      "Nodes without var:      ", check$nodes_without_var, "\n",
+      "Numberlinked nodes:     ", check$num_nodes_linked, "\n",
+      "Duplicated nodes:       ", check$repeated_node_names, "\n",
+      "Number of arcs:         ", check$num_arcs, "\n",
+      "Well connected arcs:    ", check$num_valid_arcs, "\n",
+      "Numb. Loose arcs:       ", check$unlinked_arcs, "\n",
+      "Duplicated arcs:        ", check$duplicated_arcs, "\n",
       sep = "")
 }
 
@@ -344,7 +348,7 @@ prepara_DAG <- function(nodes, arcs)
 #' @return a string that contains the whole DNE document
 #'
 #' @export
-red2DNE <- function(frames_data, variables, arcs, network_name)
+miro2DNE <- function(frames_data, variables, arcs, network_name)
 {
   ## Transfiere datos a Netica
   valid_arcs <- arcs[(arcs$start_n != "-") &
