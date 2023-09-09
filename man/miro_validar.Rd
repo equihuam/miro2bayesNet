@@ -6,12 +6,10 @@
 of the network attributes as interpreted from the data
 found in the Miro board.}
 \usage{
-miro_validar(variables, arcs)
+miro_validar(miroData)
 }
 \arguments{
-\item{variables}{Node data as recovered from Miro board}
-
-\item{arcs}{Arcs links as recovered from Miro board.}
+\item{miroData}{Data recovered from Miro board}
 }
 \value{
 tibble::tibble with numbers sumirizing the network structure.

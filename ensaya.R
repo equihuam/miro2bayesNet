@@ -30,14 +30,14 @@ miro_validar(variables = datos_miro$nodes, arcs = datos_miro$arcs)
 miro_dag <- prepara_DAG(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 miro_dag$gg_dag
 
-cond_indepOnvar(miro_dag$indepCond, "rendimiento")
+cond_indepOnvar1(miro_dag$indepCond, "rendimiento")
 
 neticaMiro <- red2DNE(frames_data = datos_miro$frames,
                       variables = datos_miro$nodes,
                       arcs = datos_miro$arcs,
                       network_name = "Red_Produccion_Cafe")
 
-#write(neticaMiro, "test1.dne")
+write(neticaMiro, "Café-sólo-t0.dne")
 
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 netMiro_bn
@@ -66,7 +66,9 @@ g4 <- datos_miro$nodes %>%
 
 graphviz.plot(netMiro_bn, layout = "dot")
 
-viewer(netMiro_bn, bayesianNetwork.title = "Café sustentable",
+viewer(netMiro_bn,
+       bayesianNetwork.title = "Café sustentable",
+       bayesianNetwork.subtitle = paste("Tablero Miro:", tablero_tr$name),
        edges.shadow = TRUE,
        node.colors = list(background = "white",
                           border = "black",
