@@ -14,5 +14,4 @@ miroBoards(servMiro = "miro", user)
 \description{
 This function recovers a list of all the boards available to the user
 identified by provided credentials.
-#'
 }
