@@ -237,12 +237,11 @@ miroValidation <- function(miroData)
 #' Using dagitty it produces a list of implied conditional independence conditions.
 #' Using ggdag pprodces a graphical representation of the DAG.
 #'
-#' @param nodes Node data as recovered from Miro board
-#' @param arcos Arc data as recovered from Miro board
+#' @param miroData List of data as recovered from the Miro board.
 #' @return a list holding a ggdag plot, text list of
 #' implied conditional independence of nodes, arcs and frames attributes,
 #' and the DAG itself as interpreted by dagitty.
-#' @export
+#' @noRd
 miroDAG <- function(miroData)
 {
   nodes <- miroData$nodes
@@ -348,9 +347,7 @@ miroDAG <- function(miroData)
 #' Network recovered from Miro in a DNE file format that
 #' Netica and other Bayesian Network application can reed.
 #'
-#' @param frames_data Frame data as recovered from Miro board
-#' @param variables Node data as recovered from Miro board
-#' @param arcos Arc data as recovered from Miro board
+#' @param miroData List of data as recovered from the Miro board.
 #' @return a string that contains the whole DNE document
 #'
 #' @export
@@ -561,12 +558,13 @@ miro2DNE <- function(miroData)
 #' This function extracts the subset of the implied conditional
 #' independences that containe an specified node name.
 #'
-#' @param indeps Frame data as recovered from the Miro board.
+#' @param miroData List of data as recovered from the Miro board.
 #' @param var target variable to filter the conditional independence list.
 #' @return string containing the subset of statements of conditional independence.
 #' @export
-cond_indepOnvar <-  function (indeps, var)
+cond_indepOnvar <-  function (miroData, var)
 {
+  indeps <- miroData$dag$indepCond
   var <-  gsub("_", "~", var)
 
   sub_in_cond <- indeps %>%

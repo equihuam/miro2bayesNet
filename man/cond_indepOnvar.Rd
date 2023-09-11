@@ -5,10 +5,10 @@
 \title{This function extracts the subset of the implied conditional
 independences that containe an specified node name.}
 \usage{
-cond_indepOnvar(indeps, var)
+cond_indepOnvar(miroData, var)
 }
 \arguments{
-\item{indeps}{Frame data as recovered from the Miro board.}
+\item{miroData}{List of data as recovered from the Miro board.}
 
 \item{var}{target variable to filter the conditional independence list.}
 }

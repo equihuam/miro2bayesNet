@@ -88,8 +88,7 @@ was found in **Miro**: number of nodes, identified variable names, the
 status of links, and so for.
 
 ``` r
-check_data <- miroValidation(miro_data))
-t(check_data)
+miroValidation(miro_data))
 ```
 
 Once a satisfactory Bayesian network has been produced, the function
@@ -98,18 +97,16 @@ and other dedicated Bayesian network software for training, analysis and
 prediction.
 
 ``` r
-miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token")
+miro_data <- getMiro(servMiro = "miro", user = "your-miro-token")
 
-data_DNE <- miro2DNE(frames_data = miro_data$marcos, 
-                     variables= miro_data$nodos, 
-                     arcs = miro_data$arcos)
+data_DNE <- miro2DNE(miro_data)
 ```
 
 Another option is to feed **Miro** data into `bnlearn` with the function
 `miro2bnlearn`. Which is done as follows.
 
 ``` r
-netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
+netMiro_bn <- miro2bnlearn(miro_data)
 ```
 
 One interesting option you have, once a DAG is available in **R** is the
@@ -118,5 +115,5 @@ done by `dagitty`, but you can subset them for convenience with
 `miro2bayes`.
 
 ``` r
-cond_indepOnvar(datos_miro$dag$indepCond, "rendimiento")
+cond_indepOnvar(datos_miro, "rendimiento")
 ```

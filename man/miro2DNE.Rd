@@ -9,11 +9,7 @@ Netica and other Bayesian Network application can reed.}
 miro2DNE(miroData)
 }
 \arguments{
-\item{frames_data}{Frame data as recovered from Miro board}
-
-\item{variables}{Node data as recovered from Miro board}
-
-\item{arcos}{Arc data as recovered from Miro board}
+\item{miroData}{List of data as recovered from the Miro board.}
 }
 \value{
 a string that contains the whole DNE document

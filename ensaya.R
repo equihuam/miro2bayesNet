@@ -29,7 +29,7 @@ datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
 miroValidation(datos_miro)
 datos_miro$dag
 
-cond_indepOnvar(datos_miro$dag$indepCond, "rendimiento")
+cond_indepOnvar(datos_miro, "rendimiento")
 
 neticaMiro <- miro2DNE(datos_miro)
 
