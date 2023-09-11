@@ -26,17 +26,6 @@ tablero_tr <- tableros %>%
 datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
                         board = tablero_tr)
 
-
-#TODO cut to 30 characters
-
-
-netName <- datos_miro$board %>%
-  stringi::stri_replace_all_regex("\\s", "_") %>%
-  stringi::stri_trans_general(id = "Latin-ASCII") %>%
-  stringi::stri_extract_all_regex(".{30}") %>%
-  stringi::stri_trim_both("[_\\(\\)\\[\\]\\{\\]}]", negate = TRUE)
-
-
 miroValidation(datos_miro)
 datos_miro$dag
 

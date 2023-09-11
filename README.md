@@ -111,3 +111,12 @@ Another option is to feed **Miro** data into `bnlearn` with the function
 ``` r
 netMiro_bn <- miro2bnlearn(nodes = datos_miro$nodes, arcs = datos_miro$arcs)
 ```
+
+One interesting option you have, once a DAG is available in **R** is the
+identification of *implied conditions independence patterns*. This is
+done by `dagitty`, but you can subset them for convenience with
+`miro2bayes`.
+
+``` r
+cond_indepOnvar(datos_miro$dag$indepCond, "rendimiento")
+```
