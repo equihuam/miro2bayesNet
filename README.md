@@ -75,7 +75,7 @@ relations to discuss the **DAG** structure. By critical analysis of the
 further develop the intended *causal proposition*.
 
 ``` r
-miro_data <- readMiro(servMiro = "miro", user = "your-miro-token", 
+miro_data <- getMiro(servMiro = "miro", user = "your-miro-token", 
                       board = tablero_tr)
 miro_DAG <-  miroDAG(miro_data)
 cat(indepCond)

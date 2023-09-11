@@ -26,7 +26,7 @@ miroBoards <- function(servMiro = "miro", user)
 }
 
 
-#' Get Miro data into R
+#' Gets Miro data into R
 #'
 #' This function accesses data from a specified Miro board describing
 #' the fundamental elements of a Bayesian network: nodes and arcs.
@@ -44,7 +44,7 @@ miroBoards <- function(servMiro = "miro", user)
 #' @param board Dataframe with id code and name of the Miro board to access
 #' @return a list of nodes, arcs and frames attributes
 #' @export
-readMiro <- function (servMiro = "miro", user, board)
+getMiro <- function (servMiro = "miro", user, board)
 {
   cleanFun <- function(htmlString) {
     return(gsub("<.*?>", "", htmlString))
@@ -166,11 +166,13 @@ readMiro <- function (servMiro = "miro", user, board)
                              dplyr::select(startItem.id, var.y, endItem.id, var.x) %>%
                              dplyr::rename(end_n = var.x, start_n = var.y)
 
-  miro_datos <-  list(board = board$name,
-                      nodes = variables,
-                      arcs = arcs_data_full,
-                      frames = frames_data)
-  return(miro_datos)
+  miroData <- list(board = board$name,
+                   nodes = variables,
+                   arcs = arcs_data_full,
+                   frames = frames_data)
+
+  miroData[["dag"]] <- miroDAG(miroData)
+  return(miroData)
 }
 
 
@@ -185,8 +187,8 @@ miroValidation <- function(miroData)
 {
   variables <- miroData$nodes
   arcs <- miroData$arcs
+  dag <-  miroData$dag
 
-  dag <- miroDAG(miroData)
   acyclic <- "Graph is not acyclic"
   if (dagitty::isAcyclic(dag$dag))
   {
@@ -352,8 +354,17 @@ miroDAG <- function(miroData)
 #' @return a string that contains the whole DNE document
 #'
 #' @export
-miro2DNE <- function(frames_data, variables, arcs, network_name)
+miro2DNE <- function(miroData)
 {
+  frames_data <- miroData$frames
+  variables <- miroData$nodes
+  arcs <- miroData$arcs
+  network_name <- miroData$board %>%
+    stringi::stri_replace_all_regex("\\s", "_") %>%
+    stringi::stri_trans_general(id = "Latin-ASCII") %>%
+    stringi::stri_extract_all_regex(".{30}") %>%
+    stringi::stri_trim_both("[_\\(\\)\\[\\]\\{\\]}]", negate = TRUE)
+
   ## Transfiere datos a Netica
   valid_arcs <- arcs[(arcs$start_n != "-") &
                      (arcs$end_n != "-") &

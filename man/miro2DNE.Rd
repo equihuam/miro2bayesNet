@@ -6,7 +6,7 @@
 Network recovered from Miro in a DNE file format that
 Netica and other Bayesian Network application can reed.}
 \usage{
-miro2DNE(frames_data, variables, arcs, network_name)
+miro2DNE(miroData)
 }
 \arguments{
 \item{frames_data}{Frame data as recovered from Miro board}

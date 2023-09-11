@@ -49,7 +49,7 @@ miro_boards[, c("name", "id")]
 A typical cycle of use would be as illustrated in the Figure. This way you shall have a collection of implied conditional independence relations to discuss the **DAG** structure. By critical analysis of the **DAG** you should go back to **Miro** to solve inconsistencies or further develop the intended *causal proposition*.
 
 ```{r example2, eval=FALSE}
-miro_data <- readMiro(servMiro = "miro", user = "your-miro-token", 
+miro_data <- getMiro(servMiro = "miro", user = "your-miro-token", 
                       board = tablero_tr)
 miro_DAG <-  miroDAG(miro_data)
 cat(indepCond)

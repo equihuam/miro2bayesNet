@@ -3,8 +3,9 @@
 #BiocManager::install()
 #BiocManager::install(c("graph", "Rgraphviz", "RBGL"), force = TRUE)
 #install.packages("gRain")
-devtools::document()
+
 library(devtools)
+devtools::document()
 install_github("equihuam/miro2bayesNet")
 #
 #dbx_path <-  "C:/Users/equih/Documents/1 Nubes/Dropbox/Robert/Redes/DAG/"
@@ -22,20 +23,26 @@ tablero_tr <- tableros %>%
               filter(str_detect(name, "Copia.*sólo t0")) %>%
               select(id, name)
 
-datos_miro <- readMiro(servMiro = "miro", user = "miguel-token",
+datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
                         board = tablero_tr)
 
+
+#TODO cut to 30 characters
+
+
+netName <- datos_miro$board %>%
+  stringi::stri_replace_all_regex("\\s", "_") %>%
+  stringi::stri_trans_general(id = "Latin-ASCII") %>%
+  stringi::stri_extract_all_regex(".{30}") %>%
+  stringi::stri_trim_both("[_\\(\\)\\[\\]\\{\\]}]", negate = TRUE)
+
+
 miroValidation(datos_miro)
+datos_miro$dag
 
-miro_dag <- miroDAG(datos_miro)
-miro_dag$gg_dag
+cond_indepOnvar(datos_miro$dag$indepCond, "rendimiento")
 
-cond_indepOnvar(miro_dag$indepCond, "rendimiento")
-
-neticaMiro <- miro2DNE(frames_data = datos_miro$frames,
-                      variables = datos_miro$nodes,
-                      arcs = datos_miro$arcs,
-                      network_name = "Red_Produccion_Cafe")
+neticaMiro <- miro2DNE(datos_miro)
 
 write(neticaMiro, "Café-sólo-t0.dne")
 

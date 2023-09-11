@@ -2,10 +2,10 @@
 
 export("%>%")
 export(cond_indepOnvar)
+export(getMiro)
 export(miro2DNE)
 export(miro2bnlearn)
 export(miroBoards)
 export(miroDAG)
 export(miroValidation)
-export(readMiro)
 importFrom(magrittr,"%>%")
