@@ -50,7 +50,8 @@ This is a basic example which shows you how to get Bayesian network data
 from **Miro**:
 
 ``` r
-miro_data <- datosMiro(servMiro = "miro", user = "your-miro-token", boad_id = "your-board-id")
+miro_data <- getMiro(servMiro = "miro", user = "your-miro-token", 
+                     board = tablero_tr)
 miro_data
 ```
 
@@ -77,8 +78,7 @@ further develop the intended *causal proposition*.
 ``` r
 miro_data <- getMiro(servMiro = "miro", user = "your-miro-token", 
                       board = tablero_tr)
-miro_DAG <-  miroDAG(miro_data)
-cat(indepCond)
+miro_data$dag
 ```
 
 A quick check of the network recovered from **Miro** can be produced
