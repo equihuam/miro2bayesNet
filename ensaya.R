@@ -27,7 +27,6 @@ datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
                         board = tablero_tr)
 
 miroValidation(datos_miro)
-datos_miro$dag
 
 cond_indepOnvar(datos_miro, "rendimiento")
 
@@ -39,23 +38,47 @@ netMiro_bn <- miro2bnlearn(datos_miro)
 netMiro_bn
 
 variables <- tibble(id = names(netMiro_bn$nodes))
-grp <- datos_miro$frames[, c("id", "data.title")]
-g1 <- datos_miro$nodes %>%
+
+
+# Distingue por Tipo de Capital asignado a la variable
+# Colores de interés:
+#    blue: producido
+#    dark_green: natural
+#    gray: contexto
+#    light_pink: contexto
+#    light_yellow: social
+#    orange: decidir
+#    red:
+#    violet: humano
+
+
+grp <- unique(datos_miro$nodes$color)
+
+gCap1 <- datos_miro$nodes %>%
+  filter(frame_id  == grp$color[1]) %>%
+  select(var) %>%
+  inner_join(variables, by = join_by(var == id))
+
+
+# Distingue por tipo de variable
+grp <- datos_miro$frames$id
+
+gAmb1 <- datos_miro$nodes %>%
       filter(frame_id  == grp$id[1]) %>%
       select(var) %>%
       inner_join(variables, by = join_by(var == id))
 
-g2 <- datos_miro$nodes %>%
+gAmb2 <- datos_miro$nodes %>%
   filter(frame_id  == grp$id[2]) %>%
   select(var) %>%
   inner_join(variables, by = join_by(var == id))
 
-g3 <- datos_miro$nodes %>%
+gAmb3 <- datos_miro$nodes %>%
   filter(frame_id  == grp$id[3]) %>%
   select(var) %>%
   inner_join(variables, by = join_by(var == id))
 
-g4 <- datos_miro$nodes %>%
+gAmb4 <- datos_miro$nodes %>%
   filter(frame_id  == grp$id[4]) %>%
   select(var) %>%
   inner_join(variables, by = join_by(var == id))

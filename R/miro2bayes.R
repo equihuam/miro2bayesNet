@@ -49,6 +49,11 @@ getMiro <- function (servMiro = "miro", user, board)
   cleanFun <- function(htmlString) {
     return(gsub("<.*?>", "", htmlString))
   }
+  check_board <- names(board)
+  if (!"id" %in% check_board)
+  {
+    board <- tibble::tibble(id = board, name = paste0("Miro: ", board))
+  }
 
   # Condiciones básicas de acceso a Miro
   credentials <- keyring::key_get(service = servMiro, username = user)
@@ -228,118 +233,6 @@ miroValidation <- function(miroData)
       "Numb. Loose arcs:       ", check$unlinked_arcs, "\n",
       "Duplicated arcs:        ", check$duplicated_arcs, "\n",
       sep = "")
-}
-
-
-#' Assemble the DAG as recovered from Miro sticky notes and arcs
-#'
-#' This function builds a formal DAG sing DOT language and dagitty
-#' Using dagitty it produces a list of implied conditional independence conditions.
-#' Using ggdag pprodces a graphical representation of the DAG.
-#'
-#' @param miroData List of data as recovered from the Miro board.
-#' @return a list holding a ggdag plot, text list of
-#' implied conditional independence of nodes, arcs and frames attributes,
-#' and the DAG itself as interpreted by dagitty.
-#' @noRd
-miroDAG <- function(miroData)
-{
-  nodes <- miroData$nodes
-  arcs <- miroData$arcs
-
-  # Componentes del DAG
-  valid_arcs <- arcs[(arcs$start_n != "-") &
-                           (arcs$end_n != "-") &
-                           (!is.na(arcs$start_n)) &
-                           (!is.na(arcs$end_n)),]
-  dag_head <- 'dag {bb="0,0,1,1"\n'
-  dag_arcs <- paste0(valid_arcs$start_n, " -> ",
-                      valid_arcs$end_n,
-                      "\n", collapse = "")
-
-
-  # Armado de DAG: Considero sólo las variables conectadas
-  dag_str_effective <- paste0(dag_head, dag_arcs, "}")
-  dag_effective <- dagitty::dagitty(dag_str_effective)
-  coord_dag_effective<- dagitty::coordinates(dagitty::graphLayout(dag_effective))
-  dagitty::coordinates(dag_effective) <- coord_dag_effective
-
-  # Grafico el DAG con ggdag, más estético
-  dag_effective_gg <- ggdag::tidy_dagitty(dag_effective)
-
-  dag_graph <- dag_effective_gg %>%
-              ggplot2::ggplot(ggplot2::aes(x = x, y = y, xend = xend, yend = yend,
-                                           color = name)) +
-              ggdag::geom_dag_edges_arc(curvature = c(0, .5), edge_color = "gray50") +
-              ggdag::geom_dag_text_repel(ggplot2::aes(label=name, color = name),
-                                         size = 3, force = 3, max.overlaps = 25) +
-              ggdag::geom_dag_point(ggplot2::aes(color = name), size = 2) +
-              ggplot2::theme(axis.title.x = ggplot2::element_blank(),
-                             axis.text.x = ggplot2::element_blank(),
-                             axis.ticks.x = ggplot2::element_blank(),
-                             axis.title.y = ggplot2::element_blank(),
-                             axis.text.y = ggplot2::element_blank(),
-                             axis.ticks.y = ggplot2::element_blank(),
-                             legend.position = "")
-
-  # DAG: Independencia condicional implicada
-  ind_cond <- dagitty::impliedConditionalIndependencies(dag_str_effective)
-
-  # Independencia condicional implicada en formato gráfico (Latex)
-  ind_cond_t <- tibble::tibble()
-  for (i in ind_cond)
-  {
-    if (identical(i, ind_cond[[1]]))
-    {
-      if (length(i$Z) > 0 )
-      {
-        ind_cond_t <- tibble::tibble(line = paste0("$\\newcommand{\\indep}{\\perp \\\\!\\\\!\\\\! \\perp}$",
-                                    "\n$",
-                                    gsub("_", "~", i$X),
-                                    "~ \\indep ~",
-                                    gsub("_", "~", i$Y),
-                                    "~~ |~",
-                                    gsub("_", "~", paste0(i$Z, collapse = ",~")),
-                                    "$\n ", collapse = " "))
-      } else
-      {
-        ind_cond_t <- tibble::tibble(line = paste0("$\\newcommand{\\indep}{\\perp \\\\!\\\\!\\\\! \\perp}$",
-                                     "\n$",
-                                     gsub("_", "~", i$X),
-                                     "~ \\indep ~",
-                                     gsub("_", "~", i$Y),
-                                     "$\n ", collapse = " "))
-      }
-
-    } else
-    {
-      if (length(i$Z) > 0 )
-      {
-        ind_cond_t <- ind_cond_t %>%
-                      tibble::add_row(tibble::tibble(line = paste0("$",
-                                             gsub("_", "~", i$X),
-                                             "~ \\indep ~",
-                                             gsub("_", "~", i$Y),
-                                             "~~| ~",
-                                             gsub("_", "~",
-                                                  paste0(i$Z, collapse = ",~")),
-                                             "$\n ", collapse = " ")))
-      } else {
-        ind_cond_t <- ind_cond_t %>%
-                      tibble::add_row(tibble::tibble(line = paste0("$",
-                                             gsub("_", "~", i$X),
-                                             "~ \\indep ~",
-                                             gsub("_", "~", i$Y),
-                                             "$\n ", collapse = " ")))
-      }
-    }
-  }
-  # Guarda documento **DNE** en disco
-  DAG_datos <-  list(board = miroData$board,
-                     gg_dag = dag_graph,
-                     indepCond = ind_cond_t,
-                     dag = dag_effective)
-  return(DAG_datos)
 }
 
 
@@ -636,5 +529,116 @@ miro2bnlearn <- function(miroData)
 }
 
 
+#' Assemble the DAG as recovered from Miro sticky notes and arcs
+#'
+#' This is an internal function to build a formal DAG using DOT language
+#' and dagitty. The processing includes a list of implied conditional
+#' independence conditions. Using ggdag produces a graphical representation
+#' of the DAG, also included in the returned list of objects.
+#'
+#' @param miroData List of data as recovered from the Miro board.
+#' @return a list holding a ggdag plot, text list of
+#' implied conditional independence of nodes, arcs and frames attributes,
+#' and the DAG itself as interpreted by dagitty plot byy ggdag.
+#' @noRd
+miroDAG <- function(miroData)
+{
+  nodes <- miroData$nodes
+  arcs <- miroData$arcs
+
+  # Componentes del DAG
+  valid_arcs <- arcs[(arcs$start_n != "-") &
+                       (arcs$end_n != "-") &
+                       (!is.na(arcs$start_n)) &
+                       (!is.na(arcs$end_n)),]
+  dag_head <- 'dag {bb="0,0,1,1"\n'
+  dag_arcs <- paste0(valid_arcs$start_n, " -> ",
+                     valid_arcs$end_n,
+                     "\n", collapse = "")
+
+
+  # Armado de DAG: Considero sólo las variables conectadas
+  dag_str_effective <- paste0(dag_head, dag_arcs, "}")
+  dag_effective <- dagitty::dagitty(dag_str_effective)
+  coord_dag_effective<- dagitty::coordinates(dagitty::graphLayout(dag_effective))
+  dagitty::coordinates(dag_effective) <- coord_dag_effective
+
+  # Grafico el DAG con ggdag, más estético
+  dag_effective_gg <- ggdag::tidy_dagitty(dag_effective)
+
+  dag_graph <- dag_effective_gg %>%
+    ggplot2::ggplot(ggplot2::aes(x = x, y = y, xend = xend, yend = yend,
+                                 color = name)) +
+    ggdag::geom_dag_edges_arc(curvature = c(0, .5), edge_color = "gray50") +
+    ggdag::geom_dag_text_repel(ggplot2::aes(label=name, color = name),
+                               size = 3, force = 3, max.overlaps = 25) +
+    ggdag::geom_dag_point(ggplot2::aes(color = name), size = 2) +
+    ggplot2::theme(axis.title.x = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_blank(),
+                   axis.ticks.x = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank(),
+                   axis.text.y = ggplot2::element_blank(),
+                   axis.ticks.y = ggplot2::element_blank(),
+                   legend.position = "")
+
+  # DAG: Independencia condicional implicada
+  ind_cond <- dagitty::impliedConditionalIndependencies(dag_str_effective)
+
+  # Independencia condicional implicada en formato gráfico (Latex)
+  ind_cond_t <- tibble::tibble()
+  for (i in ind_cond)
+  {
+    if (identical(i, ind_cond[[1]]))
+    {
+      if (length(i$Z) > 0 )
+      {
+        ind_cond_t <- tibble::tibble(line = paste0("$\\newcommand{\\indep}{\\perp \\\\!\\\\!\\\\! \\perp}$",
+                                                   "\n$",
+                                                   gsub("_", "~", i$X),
+                                                   "~ \\indep ~",
+                                                   gsub("_", "~", i$Y),
+                                                   "~~ |~",
+                                                   gsub("_", "~", paste0(i$Z, collapse = ",~")),
+                                                   "$\n ", collapse = " "))
+      } else
+      {
+        ind_cond_t <- tibble::tibble(line = paste0("$\\newcommand{\\indep}{\\perp \\\\!\\\\!\\\\! \\perp}$",
+                                                   "\n$",
+                                                   gsub("_", "~", i$X),
+                                                   "~ \\indep ~",
+                                                   gsub("_", "~", i$Y),
+                                                   "$\n ", collapse = " "))
+      }
+
+    } else
+    {
+      if (length(i$Z) > 0 )
+      {
+        ind_cond_t <- ind_cond_t %>%
+          tibble::add_row(tibble::tibble(line = paste0("$",
+                                                       gsub("_", "~", i$X),
+                                                       "~ \\indep ~",
+                                                       gsub("_", "~", i$Y),
+                                                       "~~| ~",
+                                                       gsub("_", "~",
+                                                            paste0(i$Z, collapse = ",~")),
+                                                       "$\n ", collapse = " ")))
+      } else {
+        ind_cond_t <- ind_cond_t %>%
+          tibble::add_row(tibble::tibble(line = paste0("$",
+                                                       gsub("_", "~", i$X),
+                                                       "~ \\indep ~",
+                                                       gsub("_", "~", i$Y),
+                                                       "$\n ", collapse = " ")))
+      }
+    }
+  }
+  # Guarda documento **DNE** en disco
+  DAG_datos <-  list(board = miroData$board,
+                     gg_dag = dag_graph,
+                     indepCond = ind_cond_t,
+                     dag = dag_effective)
+  return(DAG_datos)
+}
 
 

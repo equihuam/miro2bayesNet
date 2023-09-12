@@ -11,7 +11,7 @@ been set up to represent a Bayesian network. We assumed that in
 notes should have text describing the node, and a single *tag*,
 indicating the name of the corresponding *variable in the database*.
 With this library, you will be able to gather the attributes to lay out
-the DAG (Directed Acyclic Graph) of the network, which has been
+the **DAG** (*Directed Acyclic Graph*) of the network, which has been
 collaboratively portrayed in **Miro**. With all the basic data brought
 into *R*, you can formally process a DAG. This includes the ability to
 further process and train the model in *R*, and even in other platforms
@@ -43,8 +43,8 @@ machine with the function
 `key_set(service="identifier-you-like", username = "user-name-you-like")`
 as [described here](https://rdrr.io/cran/keyring/man/key_get.html). Both
 *service* and *username* are required, respectively, as *servMiro* and
-*user* parameters, to get access to **Miro** with the function
-`datosMiro` as explained below.
+*user* parameters, to get access to **Miro** with the function `getMiro`
+as explained below.
 
 This is a basic example which shows you how to get Bayesian network data
 from **Miro**:
@@ -63,6 +63,11 @@ boards available to that user.
 ``` r
 miro_boards <- miroBoards(servMiro = "miro", user = "your-miro-token")
 miro_boards[, c("name", "id")]
+
+# You could select what yyyou whant this way
+board_item <- miro_boards %>%
+              filter(str_detect(name, {"target frase"})) %>%
+              select(id, name)
 ```
 
 ## Typical Use Cycle
@@ -78,12 +83,12 @@ further develop the intended *causal proposition*.
 ``` r
 miro_data <- getMiro(servMiro = "miro", user = "your-miro-token", 
                       board = tablero_tr)
-miro_data$dag
+names(miro_data$dag)
 ```
 
 A quick check of the network recovered from **Miro** can be produced
-with the function `miro_validar`. The check shows whether the network is
-indeed a *DAG* (no cycles present!) and a few numbers describing what
+with the function `miroValidation`. The check shows whether the network
+is indeed a *DAG* (no cycles present!) and a few numbers describing what
 was found in **Miro**: number of nodes, identified variable names, the
 status of links, and so for.
 
@@ -91,14 +96,12 @@ status of links, and so for.
 miroValidation(miro_data))
 ```
 
-Once a satisfactory Bayesian network has been produced, the function
-**miro2DNE** is used to produce a *.DNE* file that can be used in Netica
-and other dedicated Bayesian network software for training, analysis and
-prediction.
+Once a satisfactory Bayesian network has been produced in Miro, the
+function **miro2DNE** is used to produce a *.DNE* file that can be used
+in Netica and other dedicated Bayesian network software for training,
+analysis and prediction.
 
 ``` r
-miro_data <- getMiro(servMiro = "miro", user = "your-miro-token")
-
 data_DNE <- miro2DNE(miro_data)
 ```
 
@@ -106,14 +109,17 @@ Another option is to feed **Miro** data into `bnlearn` with the function
 `miro2bnlearn`. Which is done as follows.
 
 ``` r
-netMiro_bn <- miro2bnlearn(miro_data)
+netMiro_bnl <- miro2bnlearn(miro_data)
 ```
 
 One interesting option you have, once a DAG is available in **R** is the
-identification of *implied conditions independence patterns*. This is
+identification of *implied conditional independence patterns*. This is
 done by `dagitty`, but you can subset them for convenience with
-`miro2bayes`.
+`miro2bayes`. All you have to do is provide the name of one variable to
+select all implied conditional independences that relate to that
+variable. The result is displayed as a web-page, to improve formatting
+and hopefully, usability.
 
 ``` r
-cond_indepOnvar(datos_miro, "rendimiento")
+cond_indepOnvar(datos_miro, {variable})
 ```
