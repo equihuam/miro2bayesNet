@@ -37,7 +37,7 @@ write(neticaMiro, "Café-sólo-t0.dne")
 netMiro_bn <- miro2bnlearn(datos_miro)
 netMiro_bn
 
-variables <- tibble(id = names(netMiro_bn$nodes))
+variables <- tibble(var = datos_miro$nodes$var)
 
 
 # Distingue por Tipo de Capital asignado a la variable
@@ -48,40 +48,78 @@ variables <- tibble(id = names(netMiro_bn$nodes))
 #    light_pink: contexto
 #    light_yellow: social
 #    orange: decidir
-#    red:
+#    red: estatus
 #    violet: humano
 
+capitales <- tibble(color = c("blue", "dark_green", "gray", "light_pink", "light_yellow",
+                              "orange", "red", "violet"),
+                    capital = c("producido", "natural", "contexto", "contexto", "social",
+                                "decidir", "estatus", "humano"))
 
-grp <- unique(datos_miro$nodes$color)
 
 gCap1 <- datos_miro$nodes %>%
-  filter(frame_id  == grp$color[1]) %>%
+  filter(color  == capitales$color[1]) %>%
   select(var) %>%
-  inner_join(variables, by = join_by(var == id))
+  inner_join(variables)
+
+gCap2 <- datos_miro$nodes %>%
+  filter(color  == capitales$color[2]) %>%
+  select(var) %>%
+  inner_join(variables)
+
+gCap3 <- datos_miro$nodes %>%
+  filter(color  == capitales$color[3]) %>%
+  select(var) %>%
+  inner_join(variables)
+
+gCap4 <- datos_miro$nodes %>%
+  filter(color  == capitales$color[4]) %>%
+  select(var) %>%
+  inner_join(variables)
+
+gCap5 <- datos_miro$nodes %>%
+  filter(color  == capitales$color[5]) %>%
+  select(var) %>%
+  inner_join(variables)
+
+gCap6 <- datos_miro$nodes %>%
+  filter(color  == capitales$color[6]) %>%
+  select(var) %>%
+  inner_join(variables)
+
+gCap7 <- datos_miro$nodes %>%
+  filter(color  == capitales$color[7]) %>%
+  select(var) %>%
+  inner_join(variables)
+
+gCap8 <- datos_miro$nodes %>%
+  filter(color  == capitales$color[8]) %>%
+  select(var) %>%
+  inner_join(variables)
 
 
 # Distingue por tipo de variable
 grp <- datos_miro$frames$id
 
 gAmb1 <- datos_miro$nodes %>%
-      filter(frame_id  == grp$id[1]) %>%
+      filter(frame_id  == grp[1]) %>%
       select(var) %>%
-      inner_join(variables, by = join_by(var == id))
+      inner_join(variables)
 
 gAmb2 <- datos_miro$nodes %>%
-  filter(frame_id  == grp$id[2]) %>%
+  filter(frame_id  == grp[2]) %>%
   select(var) %>%
-  inner_join(variables, by = join_by(var == id))
+  inner_join(variables)
 
 gAmb3 <- datos_miro$nodes %>%
-  filter(frame_id  == grp$id[3]) %>%
+  filter(frame_id  == grp[3]) %>%
   select(var) %>%
-  inner_join(variables, by = join_by(var == id))
+  inner_join(variables)
 
 gAmb4 <- datos_miro$nodes %>%
-  filter(frame_id  == grp$id[4]) %>%
+  filter(frame_id  == grp[4]) %>%
   select(var) %>%
-  inner_join(variables, by = join_by(var == id))
+  inner_join(variables)
 
 graphviz.plot(netMiro_bn, layout = "dot")
 
@@ -124,19 +162,19 @@ viewer(netMiro_bn,
          list(label = "Capital 1",
               shape = "icon",
               icon = list(code = "f140", color = "#e91e63"),
-              nodes = as.list(g1$var)),
+              nodes = as.list(gAmb1$var)),
          list(label = "Capital 2",
               shape = "icon",
               icon = list(code = "f1ce", color = "#03a9f4"),
-              nodes = as.list(g2$var)),
+              nodes = as.list(gAmb2$var)),
          list(label = "Capital 3",
               shape = "icon",
               icon = list(code = "f192", color = "#4caf50"),
-              nodes = as.list(g3$var)),
+              nodes = as.list(gAmb3$var)),
          list(label = "Capital 4",
               shape = "icon",
               icon = list(code = "f10c", color = "#ffc107"),
-              nodes = as.list(g4$var))),
+              nodes = as.list(gAmb4$var))),
        bayesianNetwork.enabled.interactive.mode = FALSE,
        bayesianNetwork.height = "700px")
 
