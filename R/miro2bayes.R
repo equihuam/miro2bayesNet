@@ -64,7 +64,7 @@ getMiro <- function (servMiro = "miro", user, board)
   # Marcos presentes en el tablero
   send_url <- paste0(url_miro, object, board$id, "/items")
 
-  queryString <- list(limit = "20",
+  queryString <- list(limit = "50",
                       type = "frame")
 
   response <- httr::VERB("GET", send_url,
@@ -81,7 +81,7 @@ getMiro <- function (servMiro = "miro", user, board)
   # Descripción y atributos de las Variables: "Sticky notes"
   send_url <- paste0(url_miro, object, board$id, "/items")
 
-  queryString <- list( limit = "40",
+  queryString <- list( limit = "50",
                        type = "sticky_note")
 
   response <- httr::VERB("GET", send_url,
@@ -149,6 +149,7 @@ getMiro <- function (servMiro = "miro", user, board)
   # Datos de los arcos
   send_url <- paste0(url_miro, object, board$id, "/connectors")
 
+  # TODO need to process pages
   queryString <- list(limit = "50")
 
   response <- httr::VERB("GET", send_url,
@@ -157,11 +158,48 @@ getMiro <- function (servMiro = "miro", user, board)
                          httr::content_type("application/octet-stream"),
                          httr::accept("application/json"))
 
-  arcs_data <- jsonlite::fromJSON(httr::content(response, "text", encoding = "utf-8"),
-                          flatten = TRUE)
-  num_arcos <-  arcs_data$total
+  arcs_page <- jsonlite::fromJSON(httr::content(response, "text",
+                                                encoding = "utf-8"),
+                                  flatten = TRUE)
 
-  arcs_data <-  tibble::as_tibble(arcs_data$data) %>% dplyr::select(endItem.id, startItem.id)
+  arcs_data <-  tibble::as_tibble(arcs_page$data) %>%
+                dplyr::select(endItem.id, startItem.id)
+
+  num_arcs <-  arcs_page[c("size", "limit", "total")]
+  print(paste("Página:", 1))
+  print(num_arcs)
+  print(arcs_page$cursor)
+  print(paste("Número de arcos:", length(arcs_data$endItem.id)))
+
+  if(num_arcs$total > num_arcs$limit)
+  {
+    pages <- num_arcs$total %% num_arcs$limit
+    print(pages)
+    for(i in (1:pages))
+    {
+      queryString <- list(limit = "50",
+                          cursor = arcs_page$cursor)
+      response <- httr::VERB("GET", send_url,
+                             httr::add_headers('authorization' = credentials),
+                             query = queryString,
+                             httr::content_type("application/octet-stream"),
+                             httr::accept("application/json"))
+
+      arcs_page <- jsonlite::fromJSON(httr::content(response, "text",
+                                                     encoding = "utf-8"),
+                                       flatten = TRUE)
+      num_arcs <-  arcs_page[c("size", "limit", "total")]
+      print(paste("Página:", i + 1))
+      print(num_arcs)
+      print(arcs_page$cursor)
+
+      arcs_data <-  tibble::as_tibble(arcs_page$data) %>%
+                    dplyr::select(endItem.id, startItem.id) %>%
+                    dplyr::bind_rows(arcs_data)
+      print(paste("Número de arcos:", length(arcs_data$endItem.id)))
+    }
+  }
+
 
   # Los arcos tienen el id de los nodes que tocan, ahora agrego el dato "var" del paso anterior.
   arcs_data_full <-   arcs_data %>%

@@ -28,6 +28,25 @@ datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
 
 miroValidation(datos_miro)
 
+datos_miro$nodes$var
+datos_miro$arcs$end_n
+
+
+# Comparación con Tablero de referencia
+# https://miro.com/app/board/uXjVMlD9ysE=/?share_link_id=117920272427
+tbl_ref <- tableros %>%
+  filter(str_detect(name, "Miguel")) %>%
+  select(id, name)
+datMiro_ref <- getMiro(servMiro = "miro", user = "miguel-token",
+                       board = tbl_ref)
+
+d1 <- datMiro_ref$nodes %>% arrange(var) %>% select(var, text)
+d2 <- datos_miro$nodes %>% arrange(var) %>% select(var, text)
+
+d1$var == d2$var
+datMiro_ref$nodes$text[!d1$var == d2$var]
+
+# Análisis del DAG propuesto
 cond_indepOnvar(datos_miro, "rendimiento")
 
 neticaMiro <- miro2DNE(datos_miro)
