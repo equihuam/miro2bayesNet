@@ -76,7 +76,7 @@ getMiro <- function (servMiro = "miro", user, board)
   frames_data <- jsonlite::fromJSON(httr::content(response, "text",
                                                   encoding = "utf-8"),
                                     flatten = TRUE)
-  frames_data <- frames_data$data
+  frames_data <- tibble::as_tibble(frames_data$data)
 
   # Descripción y atributos de las Variables: "Sticky notes"
   send_url <- paste0(url_miro, object, board$id, "/items")
@@ -164,17 +164,11 @@ getMiro <- function (servMiro = "miro", user, board)
 
   arcs_data <-  tibble::as_tibble(arcs_page$data) %>%
                 dplyr::select(endItem.id, startItem.id)
-
   num_arcs <-  arcs_page[c("size", "limit", "total")]
-  print(paste("Página:", 1))
-  print(num_arcs)
-  print(arcs_page$cursor)
-  print(paste("Número de arcos:", length(arcs_data$endItem.id)))
 
   if(num_arcs$total > num_arcs$limit)
   {
     pages <- num_arcs$total %% num_arcs$limit
-    print(pages)
     for(i in (1:pages))
     {
       queryString <- list(limit = "50",
@@ -189,19 +183,16 @@ getMiro <- function (servMiro = "miro", user, board)
                                                      encoding = "utf-8"),
                                        flatten = TRUE)
       num_arcs <-  arcs_page[c("size", "limit", "total")]
-      print(paste("Página:", i + 1))
-      print(num_arcs)
-      print(arcs_page$cursor)
 
       arcs_data <-  tibble::as_tibble(arcs_page$data) %>%
                     dplyr::select(endItem.id, startItem.id) %>%
                     dplyr::bind_rows(arcs_data)
-      print(paste("Número de arcos:", length(arcs_data$endItem.id)))
     }
   }
 
 
   # Los arcos tienen el id de los nodes que tocan, ahora agrego el dato "var" del paso anterior.
+  arcs_data_raw <- arcs_data
   arcs_data_full <-   arcs_data %>%
                              dplyr::filter(complete.cases(.)) %>%
                              dplyr::left_join(., variables, by = dplyr::join_by(endItem.id == id)) %>%
@@ -215,6 +206,7 @@ getMiro <- function (servMiro = "miro", user, board)
                    frames = frames_data)
 
   miroData[["dag"]] <- miroDAG(miroData)
+  miroData[["arcs_raw"]] <-arcs_data_raw
   return(miroData)
 }
 

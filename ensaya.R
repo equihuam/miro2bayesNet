@@ -28,9 +28,6 @@ datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
 
 miroValidation(datos_miro)
 
-datos_miro$nodes$var
-datos_miro$arcs$end_n
-
 
 # Comparación con Tablero de referencia
 # https://miro.com/app/board/uXjVMlD9ysE=/?share_link_id=117920272427
@@ -39,12 +36,30 @@ tbl_ref <- tableros %>%
   select(id, name)
 datMiro_ref <- getMiro(servMiro = "miro", user = "miguel-token",
                        board = tbl_ref)
+miroValidation(datMiro_ref)
 
-d1 <- datMiro_ref$nodes %>% arrange(var) %>% select(var, text)
-d2 <- datos_miro$nodes %>% arrange(var) %>% select(var, text)
+# Busca errores en Arcos
+d1 <- datos_miro$arcs_raw  %>% arrange(startItem.id)
+d2 <- datMiro_ref$arcs_raw %>% arrange(startItem.id)
 
-d1$var == d2$var
-datMiro_ref$nodes$text[!d1$var == d2$var]
+d1_comp <- d1[!complete.cases(d1),]
+d2_comp <- d2[!complete.cases(d2),]
+
+
+datMiro_ref$nodes$text[str_detect(datMiro_ref$nodes$id, d2_comp$startItem.id[1])]
+datMiro_ref$nodes$text[str_detect(datMiro_ref$nodes$id, d2_comp$startItem.id[2])]
+
+datMiro_ref$nodes$text[str_detect(datMiro_ref$nodes$id, d2_comp$endItem.id[3])]
+datMiro_ref$nodes$text[str_detect(datMiro_ref$nodes$id, d2_comp$endItem.id[4])]
+datMiro_ref$nodes$text[str_detect(datMiro_ref$nodes$id, d2_comp$endItem.id[5])]
+
+# Arcos por nodo
+
+d2_arc_cola <- datMiro_ref$arcs%>% arrange(startItem.id) %>% knitr::kable()
+
+
+
+
 
 # Análisis del DAG propuesto
 cond_indepOnvar(datos_miro, "rendimiento")
