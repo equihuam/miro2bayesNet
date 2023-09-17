@@ -80,7 +80,7 @@ getMiro <- function (servMiro = "miro", user, board)
   # Descripción y atributos de las Variables: "Sticky notes"
   send_url <- paste0(url_miro, object, board$id, "/items")
 
-  queryString <- list( limit = "50",
+  queryString <- list( limit = "10",
                        type = "sticky_note")
 
   response <- httr::VERB("GET", send_url,
@@ -89,34 +89,77 @@ getMiro <- function (servMiro = "miro", user, board)
                          httr::content_type("application/octet-stream"),
                          httr::accept("application/json"))
 
-  node_data <- jsonlite::fromJSON(httr::content(response, "text",
+  nodes_page <- jsonlite::fromJSON(httr::content(response, "text",
                                     encoding = "utf-8"),
                             flatten = TRUE)
-  node_data <- node_data$data
 
-  #TODO expand limit beyond 50 sticky_notes
+  num_nodes <-  nodes_page[c("size", "limit", "total")]
 
-  if (any(stringr::str_detect(names(node_data), "parent.id")))
+  # Document frame data
+  if (any(stringr::str_detect(names(nodes_page$data), "parent.id")))
   {
-    frame_id <- node_data$parent.id
+    frame_id <- nodes_page$data$parent.id
   } else {
     frame_id <- NA
   }
 
-  nodes <-  tibble::tibble(id = node_data$id,
-                               text = node_data$data.content,
-                               color = node_data$style.fillColor,
-                               frame_id = frame_id,
-                               x = as.integer(node_data$position.x),
-                               y = as.integer(node_data$position.y))
-  nodes$text <- unlist(lapply(nodes$text, cleanFun))
+
+  nodes_page$data$text <- unlist(lapply(nodes_page$data$data.content,
+                                        cleanFun))
+
+  nodesData <- tibble::tibble(id = nodes_page$data$id,
+                              text = nodes_page$data$text,
+                              color = nodes_page$data$style.fillColor,
+                              frame_id = frame_id,
+                              x = as.integer(nodes_page$data$position.x),
+                              y = as.integer(nodes_page$data$position.y))
+
+  # Process remaining sticky_notes pages available
+  if (num_nodes$total > num_nodes$limit)
+  {
+      pages <- ceiling(num_nodes$total / num_nodes$limit) - 1
+      for(i in (1:pages))
+      {
+        queryString <- list( limit = "10",
+                             type = "sticky_note",
+                             cursor = nodes_page$cursor)
+
+        response <- httr::VERB("GET", send_url,
+                               httr::add_headers('authorization' = credentials),
+                               query = queryString,
+                               httr::content_type("application/octet-stream"),
+                               httr::accept("application/json"))
+
+        nodes_page <- jsonlite::fromJSON(httr::content(response, "text",
+                                                       encoding = "utf-8"),
+                                         flatten = TRUE)
+
+        # Document frame data
+        if (any(stringr::str_detect(names(nodes_page$data), "parent.id")))
+        {
+          frame_id <- nodes_page$data$parent.id
+        } else {
+          frame_id <- NA
+        }
+
+        nodes_page$data$text <- unlist(lapply(nodes_page$data$data.content,
+                                              cleanFun))
+        nodesData <-  tibble::tibble(id = nodes_page$data$id,
+                                 text = nodes_page$data$text,
+                                 color = nodes_page$data$style.fillColor,
+                                 frame_id = frame_id,
+                                 x = as.integer(nodes_page$data$position.x),
+                                 y = as.integer(nodes_page$data$position.y)) %>%
+                      bind_rows(nodesData)
+      }
+  }
 
   # Nombres de los nodos
 
   # Obtiene la etiqueta asociada a cada sticky note
-  for (i in (1:length(nodes$id)))
+  for (i in (1:length(nodesData$id)))
   {
-    id <- nodes$id[i]
+    id <- nodesData$id[i]
     send_url <- paste0(url_miro, object, board$id, "/items/", id, "/tags")
 
     response <- httr::VERB("GET", send_url,
@@ -147,8 +190,8 @@ getMiro <- function (servMiro = "miro", user, board)
     }
   }
 
-  nodes <- nodes %>% tibble::add_column(var = tags)
-  nodes <- nodes[nodes$text != "", ]
+  nodesData <- nodesData %>% tibble::add_column(var = tags)
+  nodesData <- nodesData[nodesData$text != "", ]
 
   # Datos de los arcos
   send_url <- paste0(url_miro, object, board$id, "/connectors")
@@ -169,10 +212,10 @@ getMiro <- function (servMiro = "miro", user, board)
                 dplyr::select(endItem.id, startItem.id)
   num_arcs <-  arcs_page[c("size", "limit", "total")]
 
-  # Process as many pages as available
+  # Process as many arc pages as available
   if(num_arcs$total > num_arcs$limit)
   {
-    pages <- num_arcs$total %% num_arcs$limit
+    pages <- ceiling(num_arcs$total / num_arcs$limit) - 1
     for(i in (1:pages))
     {
       queryString <- list(limit = "50",
@@ -186,34 +229,31 @@ getMiro <- function (servMiro = "miro", user, board)
       arcs_page <- jsonlite::fromJSON(httr::content(response, "text",
                                                      encoding = "utf-8"),
                                        flatten = TRUE)
-      num_arcs <-  arcs_page[c("size", "limit", "total")]
-
       arcs_data <-  tibble::as_tibble(arcs_page$data) %>%
                     dplyr::select(endItem.id, startItem.id) %>%
                     dplyr::bind_rows(arcs_data)
     }
   }
 
-
-  # Los arcos tienen el id de los nodes que tocan, ahora agrego el dato "var" del paso anterior.
+  # Los arcos tienen el id de los nodos que tocan, ahora agrego el dato "var" del paso anterior.
   arcs_data_raw <- arcs_data
   arcs_data_full <-   arcs_data %>%
-                             dplyr::filter(complete.cases(.)) %>%
-                             dplyr::left_join(., nodes, by = dplyr::join_by(endItem.id == id)) %>%
-                             dplyr::left_join(., nodes, by = dplyr::join_by(startItem.id == id)) %>%
-                             dplyr::select(startItem.id, var.y, endItem.id, var.x) %>%
-                             dplyr::rename(end_n = var.x, start_n = var.y)
+                      dplyr::filter(complete.cases(.)) %>%
+                      dplyr::left_join(., nodesData, by = dplyr::join_by(endItem.id == id)) %>%
+                      dplyr::left_join(., nodesData, by = dplyr::join_by(startItem.id == id)) %>%
+                      dplyr::select(startItem.id, var.y, endItem.id, var.x) %>%
+                      dplyr::rename(end_n = var.x, start_n = var.y)
 
   miroData <- list(board = board$name,
-                   nodes = nodes,
+                   nodes = nodesData,
                    arcs = arcs_data_full,
                    frames = frames_data)
 
+  # adding DAG and raw arc data ----
   miroData[["dag"]] <- miroDAG(miroData)
   miroData[["arcs_raw"]] <-arcs_data_raw
   return(miroData)
 }
-
 
 #' This function does a quick check on the numeric consistency
 #' of the network attributes as interpreted from the data
@@ -224,7 +264,7 @@ getMiro <- function (servMiro = "miro", user, board)
 #' @export
 miroValidation <- function(miroData)
 {
-  nodes <- miroData$nodes
+  nodesData <- miroData$nodes
   arcs <- miroData$arcs
   dag <-  miroData$dag
 
@@ -234,7 +274,7 @@ miroValidation <- function(miroData)
     acyclic <- "Graph is acyclic"
   }
 
-  num_nodes <- length(nodes$id)
+  num_nodes <- length(nodesData$id)
   valid_arcs <- arcs[(arcs$start_n != "-") &
                        (arcs$end_n != "-") &
                        (!is.na(arcs$start_n)) &
@@ -243,24 +283,25 @@ miroValidation <- function(miroData)
   nodes_linked <- unique(c(valid_arcs$start_n, valid_arcs$end_n))
 
   num_nodes_linked <- length(nodes_linked)
-  nodes_without_var <- length(nodes$var[nodes$var == "-"])
+  nodes_without_var <- length(nodesData$var[nodesData$var == "-"])
   repeated_node_names <- num_nodes - nodes_without_var -
-    length(unique(nodes$var[nodes$var != "-"]))
+    length(unique(nodesData$var[nodesData$var != "-"]))
   num_arcs <- length(arcs$endItem.id)
   num_valid_arcs <- length(valid_arcs$endItem.id)
   unlinked_arcs <- length(arcs$endItem.id) -
     length(arcs$endItem.id)
   duplicated_arcs <- length(valid_arcs$start_n[duplicated(valid_arcs)])
 
-  check <- tibble::tibble(acyclic, num_nodes, num_nodes_linked, nodes_without_var,
-                          repeated_node_names, num_arcs, num_valid_arcs,
-                          unlinked_arcs, duplicated_arcs)
+  check <- tibble::tibble(acyclic, num_nodes, num_nodes_linked,
+                          nodes_without_var, repeated_node_names,
+                          num_arcs, num_valid_arcs, unlinked_arcs,
+                          duplicated_arcs)
 
   cat("Miro board origin:      ", miroData$board, "\n",
       "Is it a TRUE DAG?:      ", check$acyclic, "\n",
       "Number of sticky notes: ", check$num_nodes, "\n",
       "Nodes without var:      ", check$nodes_without_var, "\n",
-      "Numberlinked nodes:     ", check$num_nodes_linked, "\n",
+      "Number of linked nodes: ", check$num_nodes_linked, "\n",
       "Duplicated nodes:       ", check$repeated_node_names, "\n",
       "Number of arcs:         ", check$num_arcs, "\n",
       "Well connected arcs:    ", check$num_valid_arcs, "\n",
@@ -281,7 +322,7 @@ miroValidation <- function(miroData)
 miro2DNE <- function(miroData)
 {
   frames_data <- miroData$frames
-  nodes <- miroData$nodes
+  nodesData <- miroData$nodes
   arcs <- miroData$arcs
   network_name <- miroData$board %>%
     stringi::stri_replace_all_regex("\\s", "_") %>%
@@ -296,12 +337,12 @@ miro2DNE <- function(miroData)
                      (!is.na(arcs$end_n)),]
 
   nodes_linked <- unique(c(valid_arcs$start_n, valid_arcs$end_n))
-  nodes <- sapply(nodes_linked, function(key) list(parents = character()), simplify=F)
+  nodesData <- sapply(nodes_linked, function(key) list(parents = character()), simplify=F)
 
   # Agrega color del group y coordenadas a los nodes y prepara la traslación al origen común.
-  for(n in names(nodes))
+  for(n in names(nodesData))
   {
-    frame_id <- nodes$frame_id[nodes$var == n]
+    frame_id <- nodesData$frame_id[nodesData$var == n]
     if (!is.na(frame_id))
     {
       group <- strsplit(frames_data$data.title[frames_data$id == frame_id], " ")[[1]][1]
@@ -316,27 +357,27 @@ miro2DNE <- function(miroData)
       off_y <- 400
     }
 
-    nodes[[n]]["x"] <- nodes$x[nodes$var == n] + off_x
-    nodes[[n]]["y"] <- nodes$y[nodes$var == n] + off_y
-    nodes[[n]]["color"] <- color
-    nodes[[n]]["group"] <- group
+    nodesData[[n]]["x"] <- nodesData$x[nodesData$var == n] + off_x
+    nodesData[[n]]["y"] <- nodesData$y[nodesData$var == n] + off_y
+    nodesData[[n]]["color"] <- color
+    nodesData[[n]]["group"] <- group
   }
 
   # Valores de escalamiento
-  min_x <- min(frames_data$position.x, sapply(nodes, function(d) d$x))
-  min_y <- min(frames_data$position.y, sapply(nodes, function(d) d$y))
-  max_x <- max(frames_data$position.x, sapply(nodes, function(d) d$x))
-  max_y <- max(frames_data$position.y, sapply(nodes, function(d) d$y))
+  min_x <- min(frames_data$position.x, sapply(nodesData, function(d) d$x))
+  min_y <- min(frames_data$position.y, sapply(nodesData, function(d) d$y))
+  max_x <- max(frames_data$position.x, sapply(nodesData, function(d) d$x))
+  max_y <- max(frames_data$position.y, sapply(nodesData, function(d) d$y))
   esc_x  <- (max_x - min_x) / 1500
   esc_y  <- (max_y - min_y) / 800
   if(esc_x == 0) {esc_x <- 1}
   if(esc_y == 0) {esc_y <- 1}
 
   # Traslada y escala la posición de los nodes
-  for(n in names(nodes))
+  for(n in names(nodesData))
   {
-    nodes[[n]]["x"] <- as.integer((nodes[[n]][["x"]]  - min_x) / esc_x)
-    nodes[[n]]["y"] <- as.integer((nodes[[n]][["y"]]  - min_y) / esc_y)
+    nodesData[[n]]["x"] <- as.integer((nodesData[[n]][["x"]]  - min_x) / esc_x)
+    nodesData[[n]]["y"] <- as.integer((nodesData[[n]][["y"]]  - min_y) / esc_y)
   }
 
   # Construye la lista de "parents" de cada nodo
@@ -344,7 +385,7 @@ miro2DNE <- function(miroData)
   {
     node <- valid_arcs$end_n[[a_i]]
     parent <- valid_arcs$start_n[[a_i]]
-    nodes[[node]]$parents = append(nodes[[node]]$parents, parent)
+    nodesData[[node]]$parents = append(nodesData[[node]]$parents, parent)
   }
 
 
@@ -368,10 +409,10 @@ miro2DNE <- function(miroData)
     group_nodes = list()
     for (n in names(nodes))
     {
-      g_i = stringi::stri_trans_general(nodes[[n]]$group, "Latin-ASCII")
+      g_i = stringi::stri_trans_general(nodesData[[n]]$group, "Latin-ASCII")
       if (!is.na(g_i))
       {
-        if (n == names(nodes)[1])
+        if (n == names(nodesData)[1])
         {
           group_nodes[[g_i]] = n
         } else
@@ -441,7 +482,7 @@ miro2DNE <- function(miroData)
   # Prepara la sección que define a los nodes individualmente
   i <- 0
   dne_nodes <- character()
-  for (nodo in names(nodes))
+  for (nodo in names(nodesData))
   {
     i <- i + 1
     dne_nodes <- c(dne_nodes, paste0("node ", nodo, " {\n",
@@ -450,11 +491,11 @@ miro2DNE <- function(miroData)
                                      "    kind = NATURE;\n",
                                      "    chance = CHANCE;\n",
                                      "    parents = (",
-                                     paste0(nodes[[nodo]]$parents, collapse = "," ),");\n",
+                                     paste0(nodesData[[nodo]]$parents, collapse = "," ),");\n",
                                      "    whenchanged = ", epoch_time, ";\n",
                                      "    visual V1 {\n",
-                                     "        center = (", nodes[[nodo]]$x, ", ",
-                                     nodes[[nodo]]$y, ");\n",
+                                     "        center = (", nodesData[[nodo]]$x, ", ",
+                                     nodesData[[nodo]]$y, ");\n",
                                      "        height = ", i, ";\n",
                                      "        };\n",
                                      "    };\n", collapse = ""))
@@ -467,11 +508,11 @@ miro2DNE <- function(miroData)
   {
     dne_gr_nodes <- tibble::tibble(group = names(group_nodes),
                                    nodes = as.character(sapply(group_nodes,
-                                           function(nodes) paste0(nodes, collapse = ","))))
+                                           function(nodesData) paste0(nodes, collapse = ","))))
     doc_dne_completo <- paste0(doc_dne, dne_nodes,
-                               paste0("NodeSet ", dne_gr_nodes$group,
+                               paste0("NodeSet ", dne_gr_nodesData$group,
                                       " {Nodes = (",
-                                      dne_gr_nodes$nodes, ");};\n",
+                                      dne_gr_nodesData$nodes, ");};\n",
                                       collapse = "")
                                , "};", collapse = "")
 
@@ -589,7 +630,6 @@ miroDAG <- function(miroData)
   dag_arcs <- paste0(valid_arcs$start_n, " -> ",
                      valid_arcs$end_n,
                      "\n", collapse = "")
-
 
   # Armado de DAG: Considero sólo las variables conectadas
   dag_str_effective <- paste0(dag_head, dag_arcs, "}")
