@@ -325,7 +325,7 @@ miro2DNE <- function(miroData)
   nodesData <- miroData$nodes
   arcs <- miroData$arcs
   network_name <- miroData$board %>%
-    stringi::stri_replace_all_regex("\\s", "_") %>%
+    stringi::stri_replace_all_regex("\\s|\\:|\\;|\\,|\\.", "_") %>%
     stringi::stri_trans_general(id = "Latin-ASCII") %>%
     stringi::stri_extract_all_regex(".{30}") %>%
     stringi::stri_trim_both("[_\\(\\)\\[\\]\\{\\]}]", negate = TRUE)
@@ -337,10 +337,10 @@ miro2DNE <- function(miroData)
                      (!is.na(arcs$end_n)),]
 
   nodes_linked <- unique(c(valid_arcs$start_n, valid_arcs$end_n))
-  nodesData <- sapply(nodes_linked, function(key) list(parents = character()), simplify=F)
+  nodes_linked <- sapply(nodes_linked, function(key) list(parents = character()), simplify=F)
 
   # Agrega color del group y coordenadas a los nodes y prepara la traslación al origen común.
-  for(n in names(nodesData))
+  for(n in names(nodes_linked))
   {
     frame_id <- nodesData$frame_id[nodesData$var == n]
     if (!is.na(frame_id))
@@ -357,27 +357,27 @@ miro2DNE <- function(miroData)
       off_y <- 400
     }
 
-    nodesData[[n]]["x"] <- nodesData$x[nodesData$var == n] + off_x
-    nodesData[[n]]["y"] <- nodesData$y[nodesData$var == n] + off_y
-    nodesData[[n]]["color"] <- color
-    nodesData[[n]]["group"] <- group
+    nodes_linked[[n]]["x"] <- nodesData$x[nodesData$var == n] + off_x
+    nodes_linked[[n]]["y"] <- nodesData$y[nodesData$var == n] + off_y
+    nodes_linked[[n]]["color"] <- color
+    nodes_linked[[n]]["group"] <- group
   }
 
   # Valores de escalamiento
-  min_x <- min(frames_data$position.x, sapply(nodesData, function(d) d$x))
-  min_y <- min(frames_data$position.y, sapply(nodesData, function(d) d$y))
-  max_x <- max(frames_data$position.x, sapply(nodesData, function(d) d$x))
-  max_y <- max(frames_data$position.y, sapply(nodesData, function(d) d$y))
+  min_x <- min(frames_data$position.x, sapply(nodes_linked, function(d) d$x))
+  min_y <- min(frames_data$position.y, sapply(nodes_linked, function(d) d$y))
+  max_x <- max(frames_data$position.x, sapply(nodes_linked, function(d) d$x))
+  max_y <- max(frames_data$position.y, sapply(nodes_linked, function(d) d$y))
   esc_x  <- (max_x - min_x) / 1500
   esc_y  <- (max_y - min_y) / 800
   if(esc_x == 0) {esc_x <- 1}
   if(esc_y == 0) {esc_y <- 1}
 
-  # Traslada y escala la posición de los nodes
-  for(n in names(nodesData))
+  # Traslada y escala la posición de los nodos
+  for(n in names(nodes_linked))
   {
-    nodesData[[n]]["x"] <- as.integer((nodesData[[n]][["x"]]  - min_x) / esc_x)
-    nodesData[[n]]["y"] <- as.integer((nodesData[[n]][["y"]]  - min_y) / esc_y)
+    nodes_linked[[n]]["x"] <- as.integer((nodes_linked[[n]][["x"]]  - min_x) / esc_x)
+    nodes_linked[[n]]["y"] <- as.integer((nodes_linked[[n]][["y"]]  - min_y) / esc_y)
   }
 
   # Construye la lista de "parents" de cada nodo
@@ -385,9 +385,8 @@ miro2DNE <- function(miroData)
   {
     node <- valid_arcs$end_n[[a_i]]
     parent <- valid_arcs$start_n[[a_i]]
-    nodesData[[node]]$parents = append(nodesData[[node]]$parents, parent)
+    nodes_linked[[node]]$parents = append(nodes_linked[[node]]$parents, parent)
   }
-
 
   # Encabezado del archivo DNE para Netica
   epoch_time <- as.integer(Sys.time())  # tiempo en segundos desde 01-01-1970
@@ -405,14 +404,14 @@ miro2DNE <- function(miroData)
                     color = stringr::str_replace(color, "#", "Color = 0x0")) %>%
       dplyr::mutate(group = stringr::str_sub(group))
 
-    # Lista de nodes por group
+    # Lista de nodos por group
     group_nodes = list()
-    for (n in names(nodes))
+    for (n in names(nodes_linked))
     {
-      g_i = stringi::stri_trans_general(nodesData[[n]]$group, "Latin-ASCII")
+      g_i = stringi::stri_trans_general(nodes_linked[[n]]$group, "Latin-ASCII")
       if (!is.na(g_i))
       {
-        if (n == names(nodesData)[1])
+        if (n == names(nodes_linked)[1])
         {
           group_nodes[[g_i]] = n
         } else
@@ -439,8 +438,6 @@ miro2DNE <- function(miroData)
     }
 
   }
-
-
 
   # Arma la sección general del doc DNE (inclye NodeSets)
   doc_dne <- paste0("// ~->[DNET-1]->~\n",
@@ -479,10 +476,10 @@ miro2DNE <- function(miroData)
                     "        margins = (1270, 1270, 1270, 1270);\n",
                     "        };\n    };\n\n", collapse = "")
 
-  # Prepara la sección que define a los nodes individualmente
+  # Prepara la sección que define a los nodos individualmente
   i <- 0
   dne_nodes <- character()
-  for (nodo in names(nodesData))
+  for (nodo in names(nodes_linked))
   {
     i <- i + 1
     dne_nodes <- c(dne_nodes, paste0("node ", nodo, " {\n",
@@ -491,11 +488,11 @@ miro2DNE <- function(miroData)
                                      "    kind = NATURE;\n",
                                      "    chance = CHANCE;\n",
                                      "    parents = (",
-                                     paste0(nodesData[[nodo]]$parents, collapse = "," ),");\n",
+                                     paste0(nodes_linked[[nodo]]$parents, collapse = "," ),");\n",
                                      "    whenchanged = ", epoch_time, ";\n",
                                      "    visual V1 {\n",
-                                     "        center = (", nodesData[[nodo]]$x, ", ",
-                                     nodesData[[nodo]]$y, ");\n",
+                                     "        center = (", nodes_linked[[nodo]]$x, ", ",
+                                     nodes_linked[[nodo]]$y, ");\n",
                                      "        height = ", i, ";\n",
                                      "        };\n",
                                      "    };\n", collapse = ""))
@@ -508,11 +505,11 @@ miro2DNE <- function(miroData)
   {
     dne_gr_nodes <- tibble::tibble(group = names(group_nodes),
                                    nodes = as.character(sapply(group_nodes,
-                                           function(nodesData) paste0(nodes, collapse = ","))))
+                                           function(nodes_grp) paste0(nodes_grp, collapse = ","))))
     doc_dne_completo <- paste0(doc_dne, dne_nodes,
-                               paste0("NodeSet ", dne_gr_nodesData$group,
+                               paste0("NodeSet ", dne_gr_nodes$group,
                                       " {Nodes = (",
-                                      dne_gr_nodesData$nodes, ");};\n",
+                                      dne_gr_nodes$nodes, ");};\n",
                                       collapse = "")
                                , "};", collapse = "")
 
