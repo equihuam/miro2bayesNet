@@ -80,7 +80,7 @@ getMiro <- function (servMiro = "miro", user, board)
   # Descripción y atributos de las Variables: "Sticky notes"
   send_url <- paste0(url_miro, object, board$id, "/items")
 
-  queryString <- list( limit = "10",
+  queryString <- list( limit = "50",
                        type = "sticky_note")
 
   response <- httr::VERB("GET", send_url,
@@ -120,7 +120,7 @@ getMiro <- function (servMiro = "miro", user, board)
       pages <- ceiling(num_nodes$total / num_nodes$limit) - 1
       for(i in (1:pages))
       {
-        queryString <- list( limit = "10",
+        queryString <- list( limit = "50",
                              type = "sticky_note",
                              cursor = nodes_page$cursor)
 
@@ -154,8 +154,6 @@ getMiro <- function (servMiro = "miro", user, board)
       }
   }
 
-  # Nombres de los nodos
-
   # Obtiene la etiqueta asociada a cada sticky note
   for (i in (1:length(nodesData$id)))
   {
@@ -167,26 +165,24 @@ getMiro <- function (servMiro = "miro", user, board)
                            httr::content_type("application/octet-stream"),
                            httr::accept("application/json"))
 
-    labels_data <- jsonlite::fromJSON(httr::content(response, "text",
-                                                        encoding = "utf-8"),
-                                flatten = TRUE)
-
-    #TODO expand limit beyond 50 tags
+    labels_page <- jsonlite::fromJSON(httr::content(response, "text",
+                                                    encoding = "utf-8"),
+                                      flatten = TRUE)
 
     if (i == 1)
     {
-      if (is.null(labels_data$tags$title))
+      if (is.null(labels_page$tags$title))
       {
         tags <-  "-"
       } else
-      {  tags <-  labels_data$tags$title}
+      {  tags <-  labels_page$tags$title}
     } else
     {
-      if (is.null(labels_data$tags$title))
+      if (is.null(labels_page$tags$title))
       {
         tags <-  c(tags, "-")
       } else
-      {tags <-  c(tags, labels_data$tags$title) }
+      {tags <-  c(tags, labels_page$tags$title) }
     }
   }
 

@@ -11,16 +11,17 @@ install_github("equihuam/miro2bayesNet")
 #dbx_path <-  "C:/Users/equih/Documents/1 Nubes/Dropbox/Robert/Redes/DAG/"
 #
 
+library(miro2bayes)
+
 library(bnlearn)
 library(bnviewer)
 library(tidyverse)
-library(miro2bayes)
 
 tableros <- miroBoards(servMiro = "miro", user = "miguel-token")
 tableros[, c("name", "id")]
 
 tablero_tr <- tableros %>%
-              filter(str_detect(name, "Copia.*sólo t0")) %>%
+              filter(str_detect(name, "val1")) %>%
               select(id, name)
 
 datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
@@ -66,7 +67,7 @@ cond_indepOnvar(datos_miro, "rendimiento")
 
 neticaMiro <- miro2DNE(datos_miro)
 
-write(neticaMiro, "Café-sólo-t0.dne")
+write(neticaMiro, "Café-sólo-t0-v1.dne")
 
 netMiro_bn <- miro2bnlearn(datos_miro)
 netMiro_bn
