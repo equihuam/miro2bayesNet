@@ -46,52 +46,72 @@ miroBoards <- function(servMiro = "miro", user)
 #' @export
 getMiro <- function (servMiro = "miro", user, board)
 {
-  cleanFun <- function(htmlString) {
-    return(gsub("<.*?>", "", htmlString))
+  # getMiro internal functions -------------
+  cleanFun <- function(htmlString)
+    {
+      return(gsub("<.*?>", "", htmlString))
+    }
+
+
+  queryMiro <- function(board_id, object = "boards/", item_set, item_type,
+                        item_id = "", page = "", miroCreds)
+  {
+    url_miro <- "https://api.miro.com/v2/"
+
+    if(item_id == "")
+    {
+      sndURL <- paste0(url_miro, object, board_id, item_set)
+
+      ifelse (item_set == "/items",
+              qryStr  <- list(limit = "50", type = item_type),
+              qryStr  <- list(limit = "50"))
+      if (page != "") qryStr <- paste0(qryStr, cursor = page)
+
+      response <- httr::VERB("GET", sndURL,
+                             httr::add_headers('authorization' = miroCreds),
+                             query = qryStr,
+                             httr::content_type("application/octet-stream"),
+                             httr::accept("application/json"))
+    } else {
+      sndURL <- paste0(url_miro, object, board_id, "/items/", item_id, "/tags")
+      response <- httr::VERB("GET", sndURL,
+                             httr::add_headers('authorization' = miroCreds),
+                             httr::content_type("application/octet-stream"),
+                             httr::accept("application/json"))
+    }
+
+
+    miroQr_Data <- jsonlite::fromJSON(httr::content(response, "text",
+                                                    encoding = "utf-8"),
+                                      flatten = TRUE)
+    return(miroQr_Data)
+
   }
+
+
+  # Basic items to access Miro team space online -----------------
   if (!any(stringr::str_detect(names(board), "id")))
   {
     board <- tibble::tibble(id = board, name = paste0("Miro: ", board))
   }
 
-  # Condiciones básicas de acceso a Miro
   credentials <- keyring::key_get(service = servMiro, username = user)
   credentials <-  paste("Bearer", credentials)
-  url_miro <- "https://api.miro.com/v2/"
-  object <- "boards/"
 
-  # Marcos presentes en el tablero
-  send_url <- paste0(url_miro, object, board$id, "/items")
-
-  queryString <- list(limit = "50",
-                      type = "frame")
-
-  response <- httr::VERB("GET", send_url,
-                         httr::add_headers('authorization' = credentials),
-                         query = queryString,
-                         httr::content_type("application/octet-stream"),
-                         httr::accept("application/json"))
-
-  frames_data <- jsonlite::fromJSON(httr::content(response, "text",
-                                                  encoding = "utf-8"),
-                                    flatten = TRUE)
+  # Recover frames present in selected board
+  frames_data <- queryMiro(board_id = board$id,
+                           object = "boards/",
+                           item_set = "/items",
+                           item_type = "frame",
+                           miroCreds = credentials)
   frames_data <- tibble::as_tibble(frames_data$data)
 
   # Descripción y atributos de las Variables: "Sticky notes"
-  send_url <- paste0(url_miro, object, board$id, "/items")
-
-  queryString <- list( limit = "50",
-                       type = "sticky_note")
-
-  response <- httr::VERB("GET", send_url,
-                         httr::add_headers('authorization' = credentials),
-                         query = queryString,
-                         httr::content_type("application/octet-stream"),
-                         httr::accept("application/json"))
-
-  nodes_page <- jsonlite::fromJSON(httr::content(response, "text",
-                                    encoding = "utf-8"),
-                            flatten = TRUE)
+  nodes_page <- queryMiro(board_id = board$id,
+                          object = "boards/",
+                          item_set = "/items",
+                          item_type = "sticky_note",
+                          miroCreds = credentials)
 
   num_nodes <-  nodes_page[c("size", "limit", "total")]
 
@@ -102,7 +122,6 @@ getMiro <- function (servMiro = "miro", user, board)
   } else {
     frame_id <- NA
   }
-
 
   nodes_page$data$text <- unlist(lapply(nodes_page$data$data.content,
                                         cleanFun))
@@ -120,19 +139,12 @@ getMiro <- function (servMiro = "miro", user, board)
       pages <- ceiling(num_nodes$total / num_nodes$limit) - 1
       for(i in (1:pages))
       {
-        queryString <- list( limit = "50",
-                             type = "sticky_note",
-                             cursor = nodes_page$cursor)
-
-        response <- httr::VERB("GET", send_url,
-                               httr::add_headers('authorization' = credentials),
-                               query = queryString,
-                               httr::content_type("application/octet-stream"),
-                               httr::accept("application/json"))
-
-        nodes_page <- jsonlite::fromJSON(httr::content(response, "text",
-                                                       encoding = "utf-8"),
-                                         flatten = TRUE)
+        nodes_page <- queryMiro(board_id = board$id,
+                                object = "boards/",
+                                item_set = "/items",
+                                item_type = "sticky_note",
+                                miroCreds = credentials,
+                                page = nodes_page$cursor)
 
         # Document frame data
         if (any(stringr::str_detect(names(nodes_page$data), "parent.id")))
@@ -158,16 +170,11 @@ getMiro <- function (servMiro = "miro", user, board)
   for (i in (1:length(nodesData$id)))
   {
     id <- nodesData$id[i]
-    send_url <- paste0(url_miro, object, board$id, "/items/", id, "/tags")
-
-    response <- httr::VERB("GET", send_url,
-                           httr::add_headers('authorization' = credentials),
-                           httr::content_type("application/octet-stream"),
-                           httr::accept("application/json"))
-
-    labels_page <- jsonlite::fromJSON(httr::content(response, "text",
-                                                    encoding = "utf-8"),
-                                      flatten = TRUE)
+    labels_page <- queryMiro(board_id = board$id,
+                             object = "boards/",
+                             item_set = "/items/",
+                             item_id = id,
+                             miroCreds = credentials)
 
     if (i == 1)
     {
@@ -190,19 +197,10 @@ getMiro <- function (servMiro = "miro", user, board)
   nodesData <- nodesData[nodesData$text != "", ]
 
   # Datos de los arcos
-  send_url <- paste0(url_miro, object, board$id, "/connectors")
-
-  queryString <- list(limit = "50")
-
-  response <- httr::VERB("GET", send_url,
-                         httr::add_headers('authorization' = credentials),
-                         query = queryString,
-                         httr::content_type("application/octet-stream"),
-                         httr::accept("application/json"))
-
-  arcs_page <- jsonlite::fromJSON(httr::content(response, "text",
-                                                encoding = "utf-8"),
-                                  flatten = TRUE)
+  arcs_page <- queryMiro(board_id = board$id,
+                         object = "boards/",
+                         item_set = "/connectors",
+                         miroCreds = credentials)
 
   arcs_data <-  tibble::as_tibble(arcs_page$data) %>%
                 dplyr::select(endItem.id, startItem.id)
@@ -214,17 +212,12 @@ getMiro <- function (servMiro = "miro", user, board)
     pages <- ceiling(num_arcs$total / num_arcs$limit) - 1
     for(i in (1:pages))
     {
-      queryString <- list(limit = "50",
-                          cursor = arcs_page$cursor)
-      response <- httr::VERB("GET", send_url,
-                             httr::add_headers('authorization' = credentials),
-                             query = queryString,
-                             httr::content_type("application/octet-stream"),
-                             httr::accept("application/json"))
+      arcs_page <- queryMiro(board_id = board$id,
+                             object = "boards/",
+                             item_set = "/connectors",
+                             miroCreds = credentials,
+                             page = arcs_page$cursor)
 
-      arcs_page <- jsonlite::fromJSON(httr::content(response, "text",
-                                                     encoding = "utf-8"),
-                                       flatten = TRUE)
       arcs_data <-  tibble::as_tibble(arcs_page$data) %>%
                     dplyr::select(endItem.id, startItem.id) %>%
                     dplyr::bind_rows(arcs_data)
