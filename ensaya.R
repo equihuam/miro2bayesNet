@@ -5,11 +5,13 @@
 #install.packages("gRain")
 
 library(devtools)
+usethis::use_testthat(3)
 devtools::document()
 install_github("equihuam/miro2bayesNet")
 #
 #dbx_path <-  "C:/Users/equih/Documents/1 Nubes/Dropbox/Robert/Redes/DAG/"
-#
+
+
 
 library(miro2bayes)
 
@@ -21,7 +23,7 @@ tableros <- miroBoards(servMiro = "miro", user = "miguel-token")
 tableros[, c("name", "id")]
 
 tablero_tr <- tableros %>%
-              filter(str_detect(name, "val1")) %>%
+              filter(str_detect(name, "Copia")) %>%
               select(id, name)
 
 datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
@@ -29,6 +31,9 @@ datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
 
 miroValidation(datos_miro)
 
+datos_miro_back <- getMiro(servMiro = "miro", user = "miguel-token",
+                      board = tablero_tr2)
+miroValidation(datos_miro_back)
 
 # Comparación con Tablero de referencia
 # https://miro.com/app/board/uXjVMlD9ysE=/?share_link_id=117920272427

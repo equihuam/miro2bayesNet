@@ -65,7 +65,7 @@ getMiro <- function (servMiro = "miro", user, board)
       ifelse (item_set == "/items",
               qryStr  <- list(limit = "50", type = item_type),
               qryStr  <- list(limit = "50"))
-      if (page != "") qryStr <- paste0(qryStr, cursor = page)
+      if (page != "") qryStr[["cursor"]] <-  page
 
       response <- httr::VERB("GET", sndURL,
                              httr::add_headers('authorization' = miroCreds),
