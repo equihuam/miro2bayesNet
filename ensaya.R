@@ -7,7 +7,7 @@
 library(devtools)
 usethis::use_testthat(3)
 devtools::document()
-install_github("equihuam/miro2bayesNet")
+install_github("equihuam/miro2bayesNet", force = TRUE)
 #
 #dbx_path <-  "C:/Users/equih/Documents/1 Nubes/Dropbox/Robert/Redes/DAG/"
 
