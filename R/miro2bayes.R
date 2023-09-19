@@ -58,7 +58,7 @@ getMiro <- function (servMiro = "miro", user, board)
   {
     url_miro <- "https://api.miro.com/v2/"
 
-    if(item_id == "")
+    if(item_id == "")   # Get drawing Items on the board
     {
       sndURL <- paste0(url_miro, object, board_id, item_set)
 
@@ -72,7 +72,8 @@ getMiro <- function (servMiro = "miro", user, board)
                              query = qryStr,
                              httr::content_type("application/octet-stream"),
                              httr::accept("application/json"))
-    } else {
+
+    } else {    # get tags attached to Stickynotes
       sndURL <- paste0(url_miro, object, board_id, "/items/", item_id, "/tags")
       response <- httr::VERB("GET", sndURL,
                              httr::add_headers('authorization' = miroCreds),
@@ -80,7 +81,7 @@ getMiro <- function (servMiro = "miro", user, board)
                              httr::accept("application/json"))
     }
 
-
+    # Apply convert response to json for further processing
     miroQr_Data <- jsonlite::fromJSON(httr::content(response, "text",
                                                     encoding = "utf-8"),
                                       flatten = TRUE)
@@ -88,8 +89,9 @@ getMiro <- function (servMiro = "miro", user, board)
 
   }
 
+  # getMiro main body --------------------------------------------------
 
-  # Basic items to access Miro team space online -----------------
+  # Basic items to access Miro team space online
   if (!any(stringr::str_detect(names(board), "id")))
   {
     board <- tibble::tibble(id = board, name = paste0("Miro: ", board))
@@ -106,7 +108,7 @@ getMiro <- function (servMiro = "miro", user, board)
                            miroCreds = credentials)
   frames_data <- tibble::as_tibble(frames_data$data)
 
-  # Descripción y atributos de las Variables: "Sticky notes"
+  # Get Miro attribute and description of the nodes provided by user in "Sticky notes"
   nodes_page <- queryMiro(board_id = board$id,
                           object = "boards/",
                           item_set = "/items",
@@ -166,7 +168,7 @@ getMiro <- function (servMiro = "miro", user, board)
       }
   }
 
-  # Obtiene la etiqueta asociada a cada sticky note
+  # Get single tag in sticky note, naming the variable associated to that node
   for (i in (1:length(nodesData$id)))
   {
     id <- nodesData$id[i]
@@ -196,7 +198,7 @@ getMiro <- function (servMiro = "miro", user, board)
   nodesData <- nodesData %>% tibble::add_column(var = tags)
   nodesData <- nodesData[nodesData$text != "", ]
 
-  # Datos de los arcos
+  # Arc data
   arcs_page <- queryMiro(board_id = board$id,
                          object = "boards/",
                          item_set = "/connectors",
@@ -224,7 +226,7 @@ getMiro <- function (servMiro = "miro", user, board)
     }
   }
 
-  # Los arcos tienen el id de los nodos que tocan, ahora agrego el dato "var" del paso anterior.
+  # Arcs have the ids of linked nodes. Adding "var" names from node data.
   arcs_data_raw <- arcs_data
   arcs_data_full <-   arcs_data %>%
                       dplyr::filter(complete.cases(.)) %>%
@@ -238,7 +240,7 @@ getMiro <- function (servMiro = "miro", user, board)
                    arcs = arcs_data_full,
                    frames = frames_data)
 
-  # adding DAG and raw arc data ----
+  # Adding DAG and raw arc data
   miroData[["dag"]] <- miroDAG(miroData)
   miroData[["arcs_raw"]] <-arcs_data_raw
   return(miroData)
@@ -319,7 +321,7 @@ miro2DNE <- function(miroData)
     stringi::stri_extract_all_regex(".{30}") %>%
     stringi::stri_trim_both("[_\\(\\)\\[\\]\\{\\]}]", negate = TRUE)
 
-  ## Transfiere datos a Netica
+  ## DAG to DNE format. To be read by Netica (c) from Nosrsys, and other aplications.
   valid_arcs <- arcs[(arcs$start_n != "-") &
                      (arcs$end_n != "-") &
                      (!is.na(arcs$start_n)) &
@@ -328,7 +330,7 @@ miro2DNE <- function(miroData)
   nodes_linked <- unique(c(valid_arcs$start_n, valid_arcs$end_n))
   nodes_linked <- sapply(nodes_linked, function(key) list(parents = character()), simplify=F)
 
-  # Agrega color del group y coordenadas a los nodes y prepara la traslación al origen común.
+  # Get colors and relative positions from frame  data to display nodes on a common canvas.
   for(n in names(nodes_linked))
   {
     frame_id <- nodesData$frame_id[nodesData$var == n]
@@ -352,7 +354,7 @@ miro2DNE <- function(miroData)
     nodes_linked[[n]]["group"] <- group
   }
 
-  # Valores de escalamiento
+  # Scaling values to position nodes on common canvas.
   min_x <- min(frames_data$position.x, sapply(nodes_linked, function(d) d$x))
   min_y <- min(frames_data$position.y, sapply(nodes_linked, function(d) d$y))
   max_x <- max(frames_data$position.x, sapply(nodes_linked, function(d) d$x))
@@ -362,14 +364,14 @@ miro2DNE <- function(miroData)
   if(esc_x == 0) {esc_x <- 1}
   if(esc_y == 0) {esc_y <- 1}
 
-  # Traslada y escala la posición de los nodos
+  # Node coordinates translated to a common canvas.
   for(n in names(nodes_linked))
   {
     nodes_linked[[n]]["x"] <- as.integer((nodes_linked[[n]][["x"]]  - min_x) / esc_x)
     nodes_linked[[n]]["y"] <- as.integer((nodes_linked[[n]][["y"]]  - min_y) / esc_y)
   }
 
-  # Construye la lista de "parents" de cada nodo
+  # Buid list of "parents" for each node.
   for (a_i in 1:length(valid_arcs$end_n))
   {
     node <- valid_arcs$end_n[[a_i]]
@@ -377,10 +379,10 @@ miro2DNE <- function(miroData)
     nodes_linked[[node]]$parents = append(nodes_linked[[node]]$parents, parent)
   }
 
-  # Encabezado del archivo DNE para Netica
-  epoch_time <- as.integer(Sys.time())  # tiempo en segundos desde 01-01-1970
+  # Heading onf DNE file
+  epoch_time <- as.integer(Sys.time())  # time in seconds since 01-01-1970
 
-  # Formación de groups
+  # Specifying attributes for groups
   if (purrr::is_empty(frames_data))
   {
     groups_dne <- ""
@@ -393,7 +395,7 @@ miro2DNE <- function(miroData)
                     color = stringr::str_replace(color, "#", "Color = 0x0")) %>%
       dplyr::mutate(group = stringr::str_sub(group))
 
-    # Lista de nodos por group
+    # List of nodes in each group
     group_nodes = list()
     for (n in names(nodes_linked))
     {
@@ -410,7 +412,7 @@ miro2DNE <- function(miroData)
       }
     }
 
-    # Construye las listas NodeSet" que usa Netica para colorear nodos por grupos
+    # "NodeSet" lists used to refer display attributes in Netica
     for (g in groups$group)
     {
       if (!is.na(g))
@@ -428,7 +430,7 @@ miro2DNE <- function(miroData)
 
   }
 
-  # Arma la sección general del doc DNE (inclye NodeSets)
+  # Builds the general sections of DNE document (including NodeSets)
   doc_dne <- paste0("// ~->[DNET-1]->~\n",
                     "\n",
                     "// File created by miro2bayes",
@@ -465,7 +467,7 @@ miro2DNE <- function(miroData)
                     "        margins = (1270, 1270, 1270, 1270);\n",
                     "        };\n    };\n\n", collapse = "")
 
-  # Prepara la sección que define a los nodos individualmente
+  # Builds section defining each node
   i <- 0
   dne_nodes <- character()
   for (nodo in names(nodes_linked))
@@ -489,7 +491,7 @@ miro2DNE <- function(miroData)
 
   dne_nodes <- paste0(dne_nodes, collapse = "\n")
 
-  # Para finalizar el documento DNE hay qe agregar la lista de agrupamientos
+  # Final component is agrouping list of nodes
   if (!purrr::is_empty(group_nodes))
   {
     dne_gr_nodes <- tibble::tibble(group = names(group_nodes),
@@ -607,7 +609,7 @@ miroDAG <- function(miroData)
   nodes <- miroData$nodes
   arcs <- miroData$arcs
 
-  # Componentes del DAG
+  # DAG components
   valid_arcs <- arcs[(arcs$start_n != "-") &
                        (arcs$end_n != "-") &
                        (!is.na(arcs$start_n)) &
@@ -617,13 +619,13 @@ miroDAG <- function(miroData)
                      valid_arcs$end_n,
                      "\n", collapse = "")
 
-  # Armado de DAG: Considero sólo las variables conectadas
+  # DAG building: only considering linked variables
   dag_str_effective <- paste0(dag_head, dag_arcs, "}")
   dag_effective <- dagitty::dagitty(dag_str_effective)
   coord_dag_effective<- dagitty::coordinates(dagitty::graphLayout(dag_effective))
   dagitty::coordinates(dag_effective) <- coord_dag_effective
 
-  # Grafico el DAG con ggdag, más estético
+  # DAG protting with "ggdag" (better presentation than plain dagitty)
   dag_effective_gg <- ggdag::tidy_dagitty(dag_effective)
 
   dag_graph <- dag_effective_gg %>%
@@ -641,10 +643,10 @@ miroDAG <- function(miroData)
                    axis.ticks.y = ggplot2::element_blank(),
                    legend.position = "")
 
-  # DAG: Independencia condicional implicada
+  # Implied conditions independence relations
   ind_cond <- dagitty::impliedConditionalIndependencies(dag_str_effective)
 
-  # Independencia condicional implicada en formato gráfico (Latex)
+  # Display implied conditionsl independence in graphical mathematical format (Latex)
   ind_cond_t <- tibble::tibble()
   for (i in ind_cond)
   {
@@ -693,7 +695,7 @@ miroDAG <- function(miroData)
       }
     }
   }
-  # Guarda documento **DNE** en disco
+
   DAG_datos <-  list(board = miroData$board,
                      gg_dag = dag_graph,
                      indepCond = ind_cond_t,
