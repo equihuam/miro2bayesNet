@@ -41,7 +41,7 @@ miroBoards <- function(servMiro = "miro", user)
 #'
 #' @param servMiro Name of the credential service as defined in keyring setup
 #' @param user User name as defined n keyring setup
-#' @param board Dataframe with id code and name of the Miro board to access
+#' @param board Data frame with id code and name of the Miro board to access
 #' @return a list of nodes, arcs and frames attributes
 #' @export
 getMiro <- function (servMiro = "miro", user, board)
@@ -73,7 +73,7 @@ getMiro <- function (servMiro = "miro", user, board)
                              httr::content_type("application/octet-stream"),
                              httr::accept("application/json"))
 
-    } else {    # get tags attached to Stickynotes
+    } else {    # get tags attached to Sticky-notes
       sndURL <- paste0(url_miro, object, board_id, "/items/", item_id, "/tags")
       response <- httr::VERB("GET", sndURL,
                              httr::add_headers('authorization' = miroCreds),
@@ -108,7 +108,7 @@ getMiro <- function (servMiro = "miro", user, board)
                            miroCreds = credentials)
   frames_data <- tibble::as_tibble(frames_data$data)
 
-  # Get Miro attribute and description of the nodes provided by user in "Sticky notes"
+  # Get Miro data of the nodes provided by user in "Sticky notes"
   nodes_page <- queryMiro(board_id = board$id,
                           object = "boards/",
                           item_set = "/items",
@@ -251,7 +251,7 @@ getMiro <- function (servMiro = "miro", user, board)
 #' found in the Miro board.
 #'
 #' @param miroData Data recovered from Miro board
-#' @return tibble::tibble with numbers sumirizing the network structure.
+#' @return tibble::tibble with numbers summarizing the network structure.
 #' @export
 miroValidation <- function(miroData)
 {
@@ -316,7 +316,10 @@ miro2DNE <- function(miroData)
   nodesData <- miroData$nodes
   arcs <- miroData$arcs
   network_name <- miroData$board %>%
-    stringi::stri_replace_all_regex("\\s|\\:|\\;|\\,|\\.", "_") %>%
+    stringi::stri_replace_all_regex(
+               "\\s|\\:|\\;|\\,|\\.|\\-|\\(|\\)|\\{|\\}|\\[|\\]",
+               "_") %>%
+    stringi::stri_replace_all_regex("_{2,}", "_") %>%
     stringi::stri_trans_general(id = "Latin-ASCII") %>%
     stringi::stri_extract_all_regex(".{30}") %>%
     stringi::stri_trim_both("[_\\(\\)\\[\\]\\{\\]}]", negate = TRUE)

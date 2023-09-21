@@ -116,9 +116,9 @@ One interesting option you have, once a DAG is available in **R** is the
 identification of *implied conditional independence patterns*. This is
 done by `dagitty`, but you can subset them for convenience with
 `miro2bayes`. All you have to do is provide the name of one variable to
-select all implied conditional independences that relate to that
-variable. The result is displayed as a web-page, to improve formatting
-and hopefully, usability.
+select all implied conditional independence expressions that relate to
+that variable. The result is displayed as a web-page, to improve
+formatting and hopefully, usability.
 
 ``` r
 cond_indepOnvar(datos_miro, {variable})

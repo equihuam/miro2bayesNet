@@ -12,7 +12,7 @@ miroValidation(miroData)
 \item{miroData}{Data recovered from Miro board}
 }
 \value{
-tibble::tibble with numbers sumirizing the network structure.
+tibble::tibble with numbers summarizing the network structure.
 }
 \description{
 This function does a quick check on the numeric consistency

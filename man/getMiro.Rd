@@ -11,7 +11,7 @@ getMiro(servMiro = "miro", user, board)
 
 \item{user}{User name as defined n keyring setup}
 
-\item{board}{Dataframe with id code and name of the Miro board to access}
+\item{board}{Data frame with id code and name of the Miro board to access}
 }
 \value{
 a list of nodes, arcs and frames attributes

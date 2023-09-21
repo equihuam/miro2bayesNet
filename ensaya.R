@@ -7,6 +7,7 @@
 library(devtools)
 usethis::use_testthat(3)
 devtools::document()
+
 install_github("equihuam/miro2bayesNet", force = TRUE)
 #
 #dbx_path <-  "C:/Users/equih/Documents/1 Nubes/Dropbox/Robert/Redes/DAG/"
@@ -23,7 +24,7 @@ tableros <- miroBoards(servMiro = "miro", user = "miguel-token")
 tableros[, c("name", "id")]
 
 tablero_tr <- tableros %>%
-              filter(str_detect(name, "Copia")) %>%
+              filter(str_detect(name, "Miguel")) %>%
               select(id, name)
 
 datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
@@ -31,18 +32,18 @@ datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
 
 miroValidation(datos_miro)
 
-datos_miro_back <- getMiro(servMiro = "miro", user = "miguel-token",
-                      board = tablero_tr2)
-miroValidation(datos_miro_back)
+#datos_miro_back <- getMiro(servMiro = "miro", user = "miguel-token",
+#                      board = tablero_tr2)
+#miroValidation(datos_miro_back)
 
 # Comparación con Tablero de referencia
 # https://miro.com/app/board/uXjVMlD9ysE=/?share_link_id=117920272427
-tbl_ref <- tableros %>%
-  filter(str_detect(name, "Miguel")) %>%
-  select(id, name)
-datMiro_ref <- getMiro(servMiro = "miro", user = "miguel-token",
-                       board = tbl_ref)
-miroValidation(datMiro_ref)
+#tbl_ref <- tableros %>%
+#  filter(str_detect(name, "Miguel")) %>%
+#  select(id, name)
+#datMiro_ref <- getMiro(servMiro = "miro", user = "miguel-token",
+#                       board = tbl_ref)
+#miroValidation(datMiro_ref)
 
 # Busca errores en Arcos
 d1 <- datos_miro$arcs_raw  %>% arrange(startItem.id)
