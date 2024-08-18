@@ -19,15 +19,16 @@ library(miro2bayes)
 library(bnlearn)
 library(bnviewer)
 library(tidyverse)
+keyring::key_list()
 
-tableros <- miroBoards(servMiro = "miro", user = "miguel-token")
+tableros <- miroBoards(servMiro = "miro", user = "miguel-edu-token")
 tableros[, c("name", "id")]
 
 tablero_tr <- tableros %>%
-              filter(str_detect(name, "Miguel")) %>%
+              filter(str_detect(name, "Costa")) %>%
               select(id, name)
 
-datos_miro <- getMiro(servMiro = "miro", user = "miguel-token",
+datos_miro <- getMiro(servMiro = "miro", user = "miguel-edu-token",
                         board = tablero_tr)
 
 miroValidation(datos_miro)
