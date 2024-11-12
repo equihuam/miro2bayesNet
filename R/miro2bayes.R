@@ -94,7 +94,7 @@ getMiro <- function (servMiro = "miro", user, board)
   # Basic items to access Miro team space online
   if (!any(stringr::str_detect(names(board), "id")))
   {
-    board <- tibble::tibble(id = board, name = paste0("Miro: ", board))
+    board <- tibble::tibble(id = board, name = paste0("Miro: ", name))
   }
 
   credentials <- keyring::key_get(service = servMiro, username = user)
@@ -246,6 +246,7 @@ getMiro <- function (servMiro = "miro", user, board)
   return(miroData)
 }
 
+
 #' This function does a quick check on the numeric consistency
 #' of the network attributes as interpreted from the data
 #' found in the Miro board.
@@ -321,7 +322,7 @@ miro2DNE <- function(miroData)
                "_") %>%
     stringi::stri_replace_all_regex("_{2,}", "_") %>%
     stringi::stri_trans_general(id = "Latin-ASCII") %>%
-    stringi::stri_extract_all_regex(".{30}") %>%
+    stringi::stri_sub(from = 1, to = 30) %>%
     stringi::stri_trim_both("[_\\(\\)\\[\\]\\{\\]}]", negate = TRUE)
 
   ## DAG to DNE format. To be read by Netica (c) from Nosrsys, and other aplications.
@@ -337,6 +338,7 @@ miro2DNE <- function(miroData)
   for(n in names(nodes_linked))
   {
     frame_id <- nodesData$frame_id[nodesData$var == n]
+    print(frame_id)
     if (!is.na(frame_id))
     {
       group <- strsplit(frames_data$data.title[frames_data$id == frame_id], " ")[[1]][1]
@@ -386,15 +388,14 @@ miro2DNE <- function(miroData)
   epoch_time <- as.integer(Sys.time())  # time in seconds since 01-01-1970
 
   # Specifying attributes for groups
-  if (purrr::is_empty(frames_data))
+  if (rlang::is_empty(frames_data))
   {
     groups_dne <- ""
     group_nodes = list()
   } else {
     groups <- frames_data %>%
       dplyr::select(group = data.title, color = style.fillColor) %>%
-      dplyr::mutate(group = stringi::stri_trans_general(stringr::str_extract(group, ".*?(?= )"),
-                                                        "Latin-ASCII"),
+      dplyr::mutate(group = stringi::stri_trans_general(group, "Latin-ASCII"),
                     color = stringr::str_replace(color, "#", "Color = 0x0")) %>%
       dplyr::mutate(group = stringr::str_sub(group))
 
