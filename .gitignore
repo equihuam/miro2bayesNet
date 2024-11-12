@@ -1,12 +1,13 @@
 .Rproj.user
 inst/doc
+/doc/
+/Meta/
+./exploring/
 .Rhistory
 .Rdata
 .httr-oauth
 .DS_Store
 .quarto
-/doc/
-/Meta/
 *.dne
 IC_rendimiento.html
 IC_rendimiento.rmd
