@@ -72,7 +72,7 @@ board_item <- miro_boards %>%
 
 ## Typical Use Cycle
 
-<img src="figures/use cycle.png" align="right" height="200px"/>
+<img src="figures/use_cycle.png" align="right" height="200px"/>
 
 A typical cycle of use would be as illustrated in the Figure. This way
 you shall have a collection of implied conditional independence
