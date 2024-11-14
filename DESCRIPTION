@@ -1,6 +1,6 @@
 Package: miro2bayes
 Title: Colaborative modeling of Bayesian networks
-Version: 2.50.15
+Version: 2.60.00
 Authors@R: 
     person("Miguel", "Equihua", , "equihuam@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5306-7397"))
@@ -14,6 +14,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 imports:
   base,
+  keyring,
   bnlearn,
   dagitty,
   dplyr,
@@ -21,12 +22,11 @@ imports:
   ggplot2,
   httr,
   jsonlite,
-  keyring,
   stringi,
   stringr,
   tibble,
   rmarkdown,
-  rstudioapi,
+  rstudioapi
 Suggests: 
     knitr,
     bnlearn,
