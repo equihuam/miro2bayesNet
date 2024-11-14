@@ -338,7 +338,6 @@ miro2DNE <- function(miroData)
   for(n in names(nodes_linked))
   {
     frame_id <- nodesData$frame_id[nodesData$var == n]
-    print(frame_id)
     if (!is.na(frame_id))
     {
       group <- strsplit(frames_data$data.title[frames_data$id == frame_id], " ")[[1]][1]
