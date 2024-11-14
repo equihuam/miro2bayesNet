@@ -21,14 +21,16 @@ library(bnviewer)
 library(tidyverse)
 keyring::key_list()
 
-tableros <- miroBoards(servMiro = "miro", user = "miguel-edu-token")
+#keyring::key_set("miro-leche", "miguel")
+
+tableros <- miroBoards(servMiro = "miro-leche", user = "miguel")
 tableros[, c("name", "id")]
 
 tablero_tr <- tableros %>%
-              filter(str_detect(name, "Costa")) %>%
+              filter(str_detect(name, "4")) %>%
               select(id, name)
 
-datos_miro <- getMiro(servMiro = "miro", user = "miguel-edu-token",
+datos_miro <- getMiro(servMiro = "miro-leche", user = "miguel",
                         board = tablero_tr)
 
 miroValidation(datos_miro)

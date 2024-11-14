@@ -1,6 +1,7 @@
 queryMiro <- function(board_id, object = "boards/", item_set, item_type,
                       item_id = "", page = "", miroCreds)
 {
+  page <- ""
   url_miro <- "https://api.miro.com/v2/"
 
   if(item_id == "")
